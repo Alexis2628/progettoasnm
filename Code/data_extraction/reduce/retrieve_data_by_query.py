@@ -189,10 +189,9 @@ class RetrieveDataByQuery:
             "server_timestamps": "true",
             "doc_id": "9523819394337000",
         }
-        cookies = 'cb=1_1970_01_01_2-3; mid=Z6O-5AALAAFwri_hZd_yj-u2-2EC; ig_did=6A6269B0-9F68-4E7C-9CEA-53AD0784C3B1; dpr=1; csrftoken=UgpugvagTtbii6zdkqFUduvZ1EVh1ezX; ds_user_id=65955050144; sessionid=65955050144%3A6hS26w11VRkHbU%3A24%3AAYeTigtAMpGXCp8sOwNzqCe29YQYygcEAfegg7eTjg'
-        # {
-        #     "sessionid": self.sessionid,
-        # }
+        cookies = {
+            "sessionid": self.sessionid,
+        }
         
         response = requests.post(
             self.url, headers=self.default_headers, data=data, cookies=cookies
