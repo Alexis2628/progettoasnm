@@ -1,38 +1,38 @@
-,pk,user_pk,caption,like_count,taken_at
-0,3555273435077793954,187264532,"My son has a good point.
-Why are we calling machine learning Artificial intelligence?",107,1738041642
-1,3505685618218888600,39643192594,"I'm a data scientist with (almost) 4 years of experience, but for the last 2 years, I've been specializing a lot in AI.
+pk,user_pk,caption,like_count,taken_at,username,thread_user_pk
+3555273435077793954,187264532,"My son has a good point.
+Why are we calling machine learning Artificial intelligence?",107,1738041642,mlssfshn,63310777769
+3505685618218888600,39643192594,"I'm a data scientist with (almost) 4 years of experience, but for the last 2 years, I've been specializing a lot in AI.
 
-If all my knowledge about AI was wiped out yesterday, this is how I'd learn artificial intelligence in 2025. 👇",1018,1732130313
-2,3549657636672820072,3312160968,"Unto the next ⚜️🚀
+If all my knowledge about AI was wiped out yesterday, this is how I'd learn artificial intelligence in 2025. 👇",1018,1732130313,codingmermaid.ai,63458931542
+3549657636672820072,3312160968,"Unto the next ⚜️🚀
 
-MSc. Artificial Intelligence and Data Science ⚜️👨🏽‍🎓💼",1474,1737372186
-3,3501933029318498859,623659295,"I’m tryna be Ms. 4 degrees!
+MSc. Artificial Intelligence and Data Science ⚜️👨🏽‍🎓💼",1474,1737372186,thisisaltgian,63387940542
+3501933029318498859,623659295,"I’m tryna be Ms. 4 degrees!
 
 BS In Management Information Systems ✅
 MS in Data Analysis 
 MS in Artificial Intelligence 
-Ph.D. In Machine Learning",1203,1731682970
-4,3485889418840696337,6018955246,"I’m not AI, artificial intelligence.
+Ph.D. In Machine Learning",1203,1731682970,thejasminenichelle,70429187510
+3485889418840696337,6018955246,"I’m not AI, artificial intelligence.
 My real name is Ai means love in Japanese.
 
 I do paint by myself.
-Why so many people hate AI, artificial intelligence art that much…",1396,1729770422
-5,3551894091232159864,71440324623,I’ve never used artificial intelligence with any of my writing. I barely use actual regular intelligence,433,1737638792
-6,3555642563616637731,1175659953,This beautiful fr,4130,1738085704
-7,3517850990194056998,37065216050,"Anyone else confused about why we’re investing more in artificial intelligence than actual human intelligence these days?
+Why so many people hate AI, artificial intelligence art that much…",1396,1729770422,aimadonna.art,63071917563
+3551894091232159864,71440324623,I’ve never used artificial intelligence with any of my writing. I barely use actual regular intelligence,433,1737638792,jamesfahyauthor_real,71452042928
+3555642563616637731,1175659953,This beautiful fr,4130,1738085704,blessedayo01,69733929461
+3517850990194056998,37065216050,"Anyone else confused about why we’re investing more in artificial intelligence than actual human intelligence these days?
 
-No? Just me?",542,1733580539
-8,3434661097871954663,295418393,Celebrity catwalk created by artificial intelligence.,5543,1723663728
-9,3459669401886148047,273811002,"Ah, scopro che anche quest'anno sono nella ""Top 2% Scientists"", la graduatoria mondiale che ogni anno individua i ricercatori di maggior impatto ^_^",1320,1726644753
-10,3554691190785886135,45697224377,Actual screenshot of Deepseek source code ArtificialIntelligence,159,1737972233
-11,3508746917691366797,241752404,"I just started my PhD program in artificial intelligence, and I’m learning a lot about implementation and how to scale businesses, but  I’m also learning the many many many gaps when it comes to equity with this technology",605,1732495249
-12,3555397737176536131,66897403288,"Hello my lovely Fan's out there ❤️, What Do Y'all Love About My Mom..?🚀👉 https://t.me/CEO_Elon_Musk_Tesla_0X",405,1738056460
-13,3554964901563758885,429303617,"Scientists in China claim AI has crossed a ""red line"" by replicating itself without human assistance. In a study, Meta and Alibaba's AI models cloned themselves in up to 90% of trials, raising alarms about potential rogue AI. Researchers warn this capability could spiral beyond control and call for international regulations to prevent AI self-replication.
-https://www.livescience.com/technology/artificial-intelligence/ai-can-now-replicate-itself-a-milestone-that-has-experts-terrified",152,1738004864
-14,3555413784291793410,5854904084,Artificial Intelligence ka kamaal,315,1738058378
-15,3555815431311905518,1624593034,"What is DeepSeek, and why did it cause the markets and U.S. tech giants to quake? Cade Metz, a technology reporter who writes about artificial intelligence for The New York Times, explains. https://nyti.ms/4aGHGVx",221,1738107221
-16,3554928196087027640,56347813790,"The stock market is tanking because China’s DeepSeek, an open-source artificial intelligence model, said that it took only two months and less than $6 million to create.
+No? Just me?",542,1733580539,heyitskimberlyn_,63086999261
+3434661097871954663,295418393,Celebrity catwalk created by artificial intelligence.,5543,1723663728,gilbert_amatta,63400205749
+3459669401886148047,273811002,"Ah, scopro che anche quest'anno sono nella ""Top 2% Scientists"", la graduatoria mondiale che ogni anno individua i ricercatori di maggior impatto ^_^",1320,1726644753,tomasset,63895458747
+3554691190785886135,45697224377,Actual screenshot of Deepseek source code ArtificialIntelligence,159,1737972233,david.webdev,63258389448
+3508746917691366797,241752404,"I just started my PhD program in artificial intelligence, and I’m learning a lot about implementation and how to scale businesses, but  I’m also learning the many many many gaps when it comes to equity with this technology",605,1732495249,malcolmlocs,63464138175
+3555397737176536131,66897403288,"Hello my lovely Fan's out there ❤️, What Do Y'all Love About My Mom..?🚀👉 https://t.me/CEO_Elon_Musk_Tesla_0X",405,1738056460,elonreevesmusk__01,68109902162
+3554964901563758885,429303617,"Scientists in China claim AI has crossed a ""red line"" by replicating itself without human assistance. In a study, Meta and Alibaba's AI models cloned themselves in up to 90% of trials, raising alarms about potential rogue AI. Researchers warn this capability could spiral beyond control and call for international regulations to prevent AI self-replication.
+https://www.livescience.com/technology/artificial-intelligence/ai-can-now-replicate-itself-a-milestone-that-has-experts-terrified",152,1738004864,tomwellborn3,63056364516
+3555413784291793410,5854904084,Artificial Intelligence ka kamaal,315,1738058378,shaileshnarayanku,66854492977
+3555815431311905518,1624593034,"What is DeepSeek, and why did it cause the markets and U.S. tech giants to quake? Cade Metz, a technology reporter who writes about artificial intelligence for The New York Times, explains. https://nyti.ms/4aGHGVx",221,1738107221,nytimes,63626552478
+3554928196087027640,56347813790,"The stock market is tanking because China’s DeepSeek, an open-source artificial intelligence model, said that it took only two months and less than $6 million to create.
 
 Apparently Americans believe everything China says now?
 
@@ -42,18 +42,18 @@ But people are downloading the app onto their phones?
 
 Did we learn absolutely nothing from TikTok?
 
-🙄",142,1738000486
-17,3270660930196923222,46153597924,"Ecco un corso GRATIS di Harvard introduttivo all’AI con Python.
+🙄",142,1738000486,theartcandee,63159194609
+3270660930196923222,46153597924,"Ecco un corso GRATIS di Harvard introduttivo all’AI con Python.
 
 Il corso “CS50's Introduction to Artificial Intelligence with Python"", esplora i concetti e gli algoritmi alla base dell'intelligenza artificiale moderna.
 
 Il corso copre anche argomenti come 👇
 📍 La teoria della probabilità
 📍 I modelli di Markov
-📍 Le reti neurali",217,1704113187
-18,3489888358711703129,55388117027,Reality is a FEEDBACK LOOP 🤯 ArtificialIntelligence,2220,1730250008
-19,3392221936372078496,5924884086,“Artificial intelligence”,8547,1718604388
-20,3258980149779166919,483510461,"@threads ma un contatto con:
+📍 Le reti neurali",217,1704113187,datapizza,63293944855
+3489888358711703129,55388117027,Reality is a FEEDBACK LOOP 🤯 ArtificialIntelligence,2220,1730250008,krystle.channel,63141700572
+3392221936372078496,5924884086,“Artificial intelligence”,8547,1718604388,kyroee,63095622792
+3258980149779166919,483510461,"@threads ma un contatto con:
 - Startupper
 - Business advisor
 - Brand strategist 
@@ -66,22 +66,22 @@ Connettimi anche con chi è appassionato di:
 • Imprenditoria
 • Social 
 
-Ci proviamo!!",245,1702720730
-21,3555815385964482551,3899443192,"Artificial intelligence detects breast cancer 5 years before it develops.
+Ci proviamo!!",245,1702720730,laura_sposato,63861317177
+3555815385964482551,3899443192,"Artificial intelligence detects breast cancer 5 years before it develops.
 
 This is what we want to see Al being used for, not to create another social media auto replier for marketing.
 
-More details/photos: https://bit.ly/3WDeIA1",22819,1738106247
-22,3449816164420241116,9649722421,Robots and Artificial intelligence will replace millions of jobs in just 10 years.,6896,1725470163
-23,3555883343940169130,71646772581,They Did A Very Good Job🫡🫡,500,1738114350
-24,3501322717545303868,66221415085,"before we work on artificial intelligence, why don’t we do something about natural stupidity?",712,1731610215
-25,3555532182682027971,60749156488,"#Repost lovetrends.ai
+More details/photos: https://bit.ly/3WDeIA1",22819,1738106247,davidattenborough_fans,63077865711
+3449816164420241116,9649722421,Robots and Artificial intelligence will replace millions of jobs in just 10 years.,6896,1725470163,kamraann_aslam,66378041630
+3555883343940169130,71646772581,They Did A Very Good Job🫡🫡,500,1738114350,doctor_10m,72016031414
+3501322717545303868,66221415085,"before we work on artificial intelligence, why don’t we do something about natural stupidity?",712,1731610215,mayornayr,66411901180
+3555532182682027971,60749156488,"#Repost lovetrends.ai
 Do you like this? 🤔🤩Follow lovetrends.ai 
 ••••
-#cutekids #kids #kidsfashion#kidsofinstagram #instakids #cute #fashionkids #love #babygirl #baby #cutebaby#viral#usa#usa#ocean",1627,1738072489
-26,3337429383814287414,60152859688,Electric shoes powered by artificial intelligence (AI).,3084,1712072624
-27,3143044778199343489,803614222,If the world is working on Artificial Intelligence you need to work on having Supernatural Intelligence.,516,1688900156
-28,3374431325999508964,381039,"Why did the tech industry veer away from ""ML"" and ""Machine Learning"" as the term for ""software that has being trained"", and into Artificial Intelligence/AI?
+#cutekids #kids #kidsfashion#kidsofinstagram #instakids #cute #fashionkids #love #babygirl #baby #cutebaby#viral#usa#usa#ocean",1627,1738072489,pessoalaile,66461211257
+3337429383814287414,60152859688,Electric shoes powered by artificial intelligence (AI).,3084,1712072624,theheralddiary,63131814221
+3143044778199343489,803614222,If the world is working on Artificial Intelligence you need to work on having Supernatural Intelligence.,516,1688900156,officialarole,63432976554
+3374431325999508964,381039,"Why did the tech industry veer away from ""ML"" and ""Machine Learning"" as the term for ""software that has being trained"", and into Artificial Intelligence/AI?
 
-Machine Learning feels so much more intellectually honest, and AI feels like it overpromises.",732,1716483582
-29,3423172653207909068,30855355,"Reminder again that what's being touted as ""artificial intelligence"" isn't intelligent in any sense of the word. It's a marketing term, not a scientific description. An ""AI"" scraping someone's work and outputting it in blended statistical mean when prompted is not anywhere close to the process of a human appreciating someone else's work and taking inspiration from it for their own. As such, it should be looked at like any other uncompensated appropriation of work by mechanical means.",538,1722294001
+Machine Learning feels so much more intellectually honest, and AI feels like it overpromises.",732,1716483582,grork,63050637478
+3423172653207909068,30855355,"Reminder again that what's being touted as ""artificial intelligence"" isn't intelligent in any sense of the word. It's a marketing term, not a scientific description. An ""AI"" scraping someone's work and outputting it in blended statistical mean when prompted is not anywhere close to the process of a human appreciating someone else's work and taking inspiration from it for their own. As such, it should be looked at like any other uncompensated appropriation of work by mechanical means.",538,1722294001,jscalzi,63291410241

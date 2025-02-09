@@ -25,7 +25,7 @@ def pagerank(graph):
 
 
 def katz_centrality(graph):
-    return nx.katz_centrality(graph, alpha=0.1, beta=1.0, max_iter=300, tol=1e-06)
+    return nx.katz_centrality(graph, alpha=0.1, beta=1.0, max_iter=1000, tol=1e-06)
 
 
 def eigenvector_centrality(graph):
@@ -40,8 +40,8 @@ def hits_scores(graph):
 class GraphConstructor:
     def __init__(
         self,
-        followers_path="Code/data_extraction/followers_Artificial_intelligence.csv",
-        data_path="Code/data_extraction/data_Artificial_Intelligence.csv",
+        followers_path="Code/data_extraction/reduce/followersAi.csv",
+        data_path="Code/data_extraction/reduce/data_Artificial_Intelligence.csv",
         info_filepath="graph_info.json",
         centralities_filepath="centralities_info.json",
     ):
@@ -74,7 +74,9 @@ class GraphConstructor:
     def build_graph(self):
         # Raggruppa i follower per ciascun utente e aggiunge gli archi al grafo
         followers_per_user = (
-            self.df.groupby("user_pk")["follower_pk"].apply(list).reset_index()
+            self.df.groupby("thread_user_pk")["thread_follower_pk"]
+            .apply(list)
+            .reset_index()
         )
         for _, (user_pk, listf) in followers_per_user.iterrows():
             for follower_pk in listf:
@@ -144,8 +146,6 @@ class GraphConstructor:
             ]
             for node, value in sorted_values:
                 print(f"Node {node}: {value:.4f}")
-
-    # ----------------------- Metodi aggiuntivi per l'estrazione di informazioni dal grafo -----------------------
 
     def get_basic_graph_info(self):
         """
@@ -247,22 +247,6 @@ class GraphConstructor:
         sorted_distribution = dict(sorted(distribution.items()))
         return sorted_distribution
 
-    def detect_communities(self):
-        """
-        Rileva le comunità presenti nel grafo convertendolo in non orientato e applicando l'algoritmo greedy per la modularità.
-        """
-        undirected_graph = self.graph.to_undirected()
-        try:
-            from networkx.algorithms.community import greedy_modularity_communities
-
-            communities = list(greedy_modularity_communities(undirected_graph))
-            # Converte le comunità in liste di nodi
-            communities = [list(c) for c in communities]
-        except Exception as e:
-            logging.warning(f"Errore nel rilevamento delle comunità: {e}")
-            communities = []
-        return {"Numero di comunità": len(communities), "Comunità": communities}
-
     def get_all_graph_info(self, force_recalculate=False):
         """
         Raccoglie e restituisce tutte le informazioni estratte dal grafo.
@@ -281,12 +265,16 @@ class GraphConstructor:
                 )
 
         info = {}
+        logging.info("Calculating basic info")
         info.update(self.get_basic_graph_info())
+        logging.info("Calculating connectivity info")
         info.update(self.get_connectivity_info())
+        logging.info("Calculating clustering info")
         info.update(self.get_clustering_info())
+        logging.info("Calculating assortativity info")
         info.update(self.get_assortativity_info())
+        logging.info("Calculating degree distribution info")
         info["Distribuzione del grado"] = self.get_degree_distribution()
-        info.update(self.detect_communities())
 
         # Salva le informazioni su file in formato JSON
         try:

@@ -52,13 +52,13 @@ if __name__ == "__main__":
     gc.log_graph_info()
 
     # Ottieni e stampa le informazioni complete sul grafo
-    all_info = gc.get_all_graph_info()
+    all_info = gc.get_all_graph_info(force_recalculate=False)
     print("\nInformazioni complete sul grafo:")
     for key, value in all_info.items():
         print(f"{key}: {value}")
 
     # Ottieni e stampa le centralità
-    centralities = gc.get_centralities_info()
+    centralities = gc.get_centralities_info(force_recalculate=False)
     print("\nCentralità calcolate:")
     for centrality_name, values in centralities.items():
         print(f"\n{centrality_name}:")
