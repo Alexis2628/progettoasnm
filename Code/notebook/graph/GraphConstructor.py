@@ -40,48 +40,38 @@ def hits_scores(graph):
 class GraphConstructor:
     def __init__(
         self,
-        followers_path="Code/data_extraction/reduce/followersAi.csv",
-        data_path="Code/data_extraction/reduce/data_Artificial_Intelligence.csv",
+        followers_paths=[
+            "Code/data_extraction/ML/followersML.csv",
+            "Code/data_extraction/reduce/followersAI.csv"],
+        data_paths=[
+            "Code/data_extraction/reduce/data_Artificial_Intelligence.csv",],
         info_filepath="graph_info.json",
         centralities_filepath="centralities_info.json",
     ):
-        # Caricamento dei dati dei followers
-        self.df = pd.read_csv(
-            followers_path,
-            dtype={
-                "user_pk": str,
-                "follower_pk": str,
-                "follower_username": str,
-                "follower_count": int,
-            },
-        )
+        
+        self.df = pd.concat([
+            pd.read_csv(followers_paths[0],dtype={"thread_user_pk": str,"thread_follower_pk": str,}),
+            pd.read_csv(followers_paths[1],dtype={"thread_user_pk": str,"thread_follower_pk": str,}),
+        ])
 
-        # Caricamento dei dati aggiuntivi
-        self.data = pd.read_csv(
-            data_path,
-            dtype={
-                "pk": str,
-                "user_pk": str,
-                "caption": str,
-                "like_count": int,
-                "taken_at": int,
-            },
-        )
+        self.data = pd.concat([
+            pd.read_csv(data_paths[0],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
+            # pd.read_csv(data_paths[1],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
+            # pd.read_csv(data_paths[2],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
+        ])
+        
         self.graph = nx.DiGraph()
         self.info_filepath = info_filepath
         self.centralities_filepath = centralities_filepath
 
     def build_graph(self):
-        # Raggruppa i follower per ciascun utente e aggiunge gli archi al grafo
         followers_per_user = (
-            self.df.groupby("thread_user_pk")["thread_follower_pk"]
-            .apply(list)
-            .reset_index()
+            self.df.groupby("thread_user_pk")["thread_follower_pk"].apply(list).reset_index()
         )
         for _, (user_pk, listf) in followers_per_user.iterrows():
+            
             for follower_pk in listf:
                 self.graph.add_edge(follower_pk, user_pk)
-        # Imposta una soglia casuale per ogni nodo
         for node in self.graph.nodes():
             self.graph.nodes[node]["threshold"] = random.uniform(0, 1)
 
