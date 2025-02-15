@@ -2,6 +2,7 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
+sys.setrecursionlimit(10000)
 from utils.logger import setup_logger
 from Code.notebook.graph.GraphConstructor import GraphConstructor
 from utils.plotter import Plotter
@@ -26,13 +27,13 @@ if __name__ == "__main__":
     logger.info("Starting the influence propagation analysis script.")
 
     # Parameters
-    run_models = False
-    run_optimizers = False
+    run_models = True
+    run_optimizers = True
     logger.info_centrality = True
-    save_to_file = False
-    save_fig = False
+    save_to_file = True
+    save_fig = True
     steps = 100
-    seed_lengths = [10, 50, 100, 200]  # Various seed_node lengths
+    seed_lengths = [10, 50, 100, 200]
 
     logger.info(
         "Parameters set. Run models: S%s, Run optimizers: %s",
@@ -50,9 +51,11 @@ if __name__ == "__main__":
     gc.log_graph_info()
 
     # Ottieni e stampa le informazioni complete sul grafo
-    all_info = gc.get_all_graph_info(force_recalculate=True)
+    all_info = gc.get_all_graph_info(force_recalculate=False)
     print("\nInformazioni complete sul grafo:")
     for key, value in all_info.items():
+        if key == "Clustering per nodo":
+            continue
         print(f"{key}: {value}")
 
     # Ottieni e stampa le centralità

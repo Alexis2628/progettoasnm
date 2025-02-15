@@ -21,11 +21,11 @@ def betweenness_centrality(graph):
 
 
 def pagerank(graph):
-    return nx.pagerank(graph, alpha=0.85)
+    return nx.pagerank(graph, alpha=0.85, max_iter=1000, tol=1e-6)
 
 
 def katz_centrality(graph):
-    return nx.katz_centrality(graph, alpha=0.1, beta=1.0, max_iter=1000, tol=1e-06)
+    return nx.katz_centrality_numpy(graph, alpha=0.1, beta=1.0)
 
 
 def eigenvector_centrality(graph):
@@ -42,34 +42,70 @@ class GraphConstructor:
         self,
         followers_paths=[
             "Code/data_extraction/ML/followersML.csv",
-            "Code/data_extraction/reduce/followersAI.csv"],
+            "Code/data_extraction/reduce/followersAI.csv",
+            "Code/data_extraction/chat/followersCHATGPT.csv",
+        ],
         data_paths=[
-            "Code/data_extraction/reduce/data_Artificial_Intelligence.csv",],
+            "Code/data_extraction/reduce/data_Artificial_Intelligence.csv",
+        ],
         info_filepath="graph_info.json",
         centralities_filepath="centralities_info.json",
     ):
-        
-        self.df = pd.concat([
-            pd.read_csv(followers_paths[0],dtype={"thread_user_pk": str,"thread_follower_pk": str,}),
-            pd.read_csv(followers_paths[1],dtype={"thread_user_pk": str,"thread_follower_pk": str,}),
-        ])
 
-        self.data = pd.concat([
-            pd.read_csv(data_paths[0],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
-            # pd.read_csv(data_paths[1],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
-            # pd.read_csv(data_paths[2],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
-        ])
-        
+        self.df = pd.concat(
+            [
+                pd.read_csv(
+                    followers_paths[0],
+                    dtype={
+                        "thread_user_pk": str,
+                        "thread_follower_pk": str,
+                    },
+                ),
+                pd.read_csv(
+                    followers_paths[1],
+                    dtype={
+                        "thread_user_pk": str,
+                        "thread_follower_pk": str,
+                    },
+                ),
+                pd.read_csv(
+                    followers_paths[2],
+                    dtype={
+                        "thread_user_pk": str,
+                        "thread_follower_pk": str,
+                    },
+                ),
+            ]
+        )
+
+        self.data = pd.concat(
+            [
+                pd.read_csv(
+                    data_paths[0],
+                    dtype={
+                        "pk": str,
+                        "user_pk": str,
+                        "caption": str,
+                        "like_count": int,
+                    },
+                ),
+                # pd.read_csv(data_paths[1],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
+                # pd.read_csv(data_paths[2],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
+            ]
+        )
+
         self.graph = nx.DiGraph()
         self.info_filepath = info_filepath
         self.centralities_filepath = centralities_filepath
 
     def build_graph(self):
         followers_per_user = (
-            self.df.groupby("thread_user_pk")["thread_follower_pk"].apply(list).reset_index()
+            self.df.groupby("thread_user_pk")["thread_follower_pk"]
+            .apply(list)
+            .reset_index()
         )
         for _, (user_pk, listf) in followers_per_user.iterrows():
-            
+
             for follower_pk in listf:
                 self.graph.add_edge(follower_pk, user_pk)
         for node in self.graph.nodes():
