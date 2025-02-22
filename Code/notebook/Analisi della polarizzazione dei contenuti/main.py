@@ -25,13 +25,16 @@ def main():
     logging.info("Inizio del processo principale.")
     output_dir = r"Code//notebook//Analisi della polarizzazione dei contenuti//output"
     # Costruzione del grafo
-    graph_builder = GraphConstructor(followers_path="dataset/dataset_cleaned.json")
+    graph_builder = GraphConstructor(
+        info_filepath="graph_info.json",
+        centralities_filepath="centralities_info.json",
+    )
     graph_builder.build_graph()
     graph = graph_builder.graph
 
     # Estrazione e pre-elaborazione dei testi
     preprocessor = TextPreprocessor()
-    user_opinions = preprocessor.extract_user_opinions(graph)
+    user_opinions = preprocessor.extract_user_opinions(graph_builder)
 
     # Estrazione dei sentiment dal grafo
     sentiment_scores = SentimentAnalyzer().extract_sentiments_from_graph(graph)

@@ -4,6 +4,7 @@ from nltk.corpus import stopwords
 from config.settings import SUPPORTED_LANGUAGES
 import nltk
 import string
+import pandas as pd
 
 nltk.download("stopwords")
 nltk.download("punkt_tab")
@@ -29,20 +30,12 @@ class TextPreprocessor:
 
         return text
 
-    def extract_user_opinions(self, graph):
-        logging.info("Estrazione delle opinioni degli utenti dal grafo.")
-        user_opinions = {}
-        for node, data in graph.nodes(data=True):
-            threads = data.get("user_data", [])
-            if not threads:  # Handle missing threads
-                continue
-            raw_text = "\n ".join(
-                self.preprocess_text(thread.get("Caption Text Translated", ""))
-                for thread in threads
-                if thread.get("Caption Text Translated")
-            )
-            if not raw_text.strip():  # Handle empty processed text
-                raw_text = ""
-            user_opinions[node] = raw_text
+    def extract_user_opinions(self, graph_builder):
+        logging.info("Estrazione delle opinioni degli utenti.")
+        df_data = graph_builder.data
+        user_opinions = df_data.groupby("thread_user_pk")["caption_text_translated"]\
+    .apply(lambda texts: " ".join(text for text in texts.astype(str) if pd.notna(text) and str.strip(text) != "nan"))\
+    .to_dict()
         logging.info("Estrazione delle opinioni degli utenti completata.")
         return user_opinions
+
