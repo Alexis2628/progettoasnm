@@ -41,12 +41,10 @@ class GraphConstructor:
     def __init__(
         self,
         followers_paths=[
-            "Code/data_extraction/ML/followersML.csv",
-            "Code/data_extraction/reduce/followersAI.csv",
-            "Code/data_extraction/chat/followersCHATGPT.csv",
+            "Code/data_extraction/followers.csv",
         ],
         data_paths=[
-            "Code/data_extraction/reduce/postAITS.csv",
+            "Code/data_extraction/total_post1TS.csv",
         ],
         info_filepath="graph_info.json",
         centralities_filepath="centralities_info.json",
@@ -56,20 +54,6 @@ class GraphConstructor:
             [
                 pd.read_csv(
                     followers_paths[0],
-                    dtype={
-                        "thread_user_pk": str,
-                        "thread_follower_pk": str,
-                    },
-                ),
-                pd.read_csv(
-                    followers_paths[1],
-                    dtype={
-                        "thread_user_pk": str,
-                        "thread_follower_pk": str,
-                    },
-                ),
-                pd.read_csv(
-                    followers_paths[2],
                     dtype={
                         "thread_user_pk": str,
                         "thread_follower_pk": str,
