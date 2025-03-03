@@ -45,6 +45,8 @@ class GraphConstructor:
         ],
         data_paths=[
             "Code/data_extraction/total_post1TS.csv",
+            "Code/data_extraction/total_post2TS.csv",
+            "Code/data_extraction/total_post3TS.csv",
         ],
         info_filepath="graph_info.json",
         centralities_filepath="centralities_info.json",
@@ -67,24 +69,27 @@ class GraphConstructor:
                 pd.read_csv(
                     data_paths[0],
                     dtype={
-                        "id": str,
-                        "post_pk": str,
-                        "caption_text": str,
-                        "like_count": int,
-                        "taken_at": str,
-                        "username": str,
-                        "user_pk": str,
-                        "quote_count": int,
-                        "repost_count": int,
-                        "reshare_count": int,
-                        "thread_user_pk": str,
-                        "caption_text_translated": str,
-                        "sentiment_score": float,
-                        "sentiment_label": str,
+                        "id": str,"post_pk": str,"caption_text": str,"like_count": int,"taken_at": str,
+                        "username": str,"user_pk": str,"quote_count": int,"repost_count": int,"reshare_count": int,
+                        "thread_user_pk": str,"caption_text_translated": str,"sentiment_score": float,"sentiment_label": str,
                     },
                 ),
-                # pd.read_csv(data_paths[1],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
-                # pd.read_csv(data_paths[2],dtype={"pk": str,"user_pk": str,"caption": str,"like_count": int},),
+                pd.read_csv(
+                    data_paths[1],
+                    dtype={
+                        "id": str,"post_pk": str,"caption_text": str,"like_count": int,"taken_at": str,
+                        "username": str,"user_pk": str,"quote_count": int,"repost_count": int,"reshare_count": int,
+                        "thread_user_pk": str,"caption_text_translated": str,"sentiment_score": float,"sentiment_label": str,
+                    },
+                ),
+                pd.read_csv(
+                    data_paths[2],
+                    dtype={
+                        "id": str,"post_pk": str,"caption_text": str,"like_count": int,"taken_at": str,
+                        "username": str,"user_pk": str,"quote_count": int,"repost_count": int,"reshare_count": int,
+                        "thread_user_pk": str,"caption_text_translated": str,"sentiment_score": float,"sentiment_label": str,
+                    },
+                ),
             ]
         )
 
