@@ -27,19 +27,19 @@ class SentimentAnalyzer:
     def extract_sentiments_from_graph(self,graph_builder):
         logging.info("Estrazione dei dati di sentiment aggregati per utente.")
         df_data = graph_builder.data
-        def compute_sentiment(texts, scores, labels):
+        def compute_sentiment(scores, labels):
             sentiments = []
             for score, label in zip(scores, labels):
-                if label == "positive":
+                if label == "POSITIVE":
                     sentiments.append(score)
-                elif label == "negative":
+                elif label == "NEGATIVE":
                     sentiments.append(1 - score)
                 else:
                     sentiments.append(0.5)
             return sum(sentiments) / len(sentiments) if sentiments else 0.5
         
         sentiment_scores = df_data.groupby("thread_user_pk").apply(
-            lambda x: compute_sentiment(x["caption_text_translated"], x["sentiment_score"], x["sentiment_label"])
+            lambda x: compute_sentiment(x["sentiment_score"], x["sentiment_label"])
         ).to_dict()
         
         logging.info("Estrazione dei dati di sentiment completata.")

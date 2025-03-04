@@ -34,7 +34,7 @@ class TextPreprocessor:
         logging.info("Estrazione delle opinioni degli utenti.")
         df_data = graph_builder.data
         user_opinions = df_data.groupby("thread_user_pk")["caption_text_translated"]\
-    .apply(lambda texts: " ".join(text for text in texts.astype(str) if pd.notna(text) and str.strip(text) != "nan"))\
+    .apply(lambda texts: " ".join(self.preprocess_text(text) for text in texts.astype(str) if pd.notna(text) and str.strip(text) != "nan"))\
     .to_dict()
         logging.info("Estrazione delle opinioni degli utenti completata.")
         return user_opinions
