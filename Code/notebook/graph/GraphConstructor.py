@@ -44,9 +44,9 @@ class GraphConstructor:
             "Code/data_extraction/followers.csv",
         ],
         data_paths=[
-            "Code/data_extraction/total_post1TS.csv",
-            "Code/data_extraction/total_post2TS.csv",
-            "Code/data_extraction/total_post3TS.csv",
+            "Code/data_extraction/total_post1.csv",
+            "Code/data_extraction/total_post2.csv",
+            "Code/data_extraction/total_post3.csv",
         ],
         info_filepath="graph_info.json",
         centralities_filepath="centralities_info.json",
