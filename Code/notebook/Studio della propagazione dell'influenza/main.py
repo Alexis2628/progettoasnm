@@ -59,7 +59,7 @@ if __name__ == "__main__":
         print(f"{key}: {value}")
 
     # Ottieni e stampa le centralità
-    centralities = gc.get_centralities_info(force_recalculate=True)
+    centralities = gc.get_centralities_info(force_recalculate=False)
     print("\nCentralità calcolate:")
     for centrality_name, values in centralities.items():
         print(f"\n{centrality_name}:")

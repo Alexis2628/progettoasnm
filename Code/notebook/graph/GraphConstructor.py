@@ -25,6 +25,19 @@ def pagerank(graph):
 
 
 def katz_centrality(graph):
+    low_memory = True
+    if low_memory:
+        eigenvalues = nx.adjacency_spectrum(graph)
+        largest_eig = max(abs(ev) for ev in eigenvalues)
+        safe_alpha = 0.9 / largest_eig
+        logging.info(f"Utilizzo safe_alpha={safe_alpha:.6f} (lambda_max={largest_eig:.6f})")  
+        return nx.katz_centrality(
+                graph, 
+                alpha=safe_alpha, 
+                beta=1.0, 
+                max_iter=5000, 
+                tol=1e-4
+        )
     return nx.katz_centrality_numpy(graph, alpha=0.1, beta=1.0)
 
 
