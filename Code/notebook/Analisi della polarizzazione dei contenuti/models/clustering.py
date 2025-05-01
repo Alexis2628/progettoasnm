@@ -11,16 +11,16 @@ import pickle
 import os
 
 class Clustering:
-    def __init__(self, max_features=10000, cluster_file='../output/cluster_labels.pkl'):
+    def __init__(self, max_features=10000, cluster_file='/cluster_labels.pkl', output_dir = ""):
         """
         Inizializza la classe con:
         - max_features: limite sul numero massimo di feature per TF-IDF.
         - cluster_file: percorso del file dove salvare i cluster.
         """
         self.max_features = max_features
-        self.cluster_file = cluster_file
+        self.cluster_file = output_dir + cluster_file
 
-    def cluster(self, user_opinions, method="kmeans", n_clusters=20):
+    def cluster(self, user_opinions, method="kmeans",n_clusters=20):
         # Se il file dei cluster esiste, carica i risultati salvati
         if os.path.exists(self.cluster_file):
             logging.info(f"Carico i cluster da {self.cluster_file}")

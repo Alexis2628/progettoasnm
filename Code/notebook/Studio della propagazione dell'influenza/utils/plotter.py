@@ -59,7 +59,7 @@ class Plotter:
                 plt.grid(True)
                 plt.legend()
                 if save:
-                    plt.savefig(os.path.join(output_dir, f"{model_name}_comparative_plot.png"))
+                    plt.savefig(os.path.join(output_dir, f"{str.strip(model_name)}_comparative_plot.png"))
                     plt.close()
                 else:
                     plt.show()

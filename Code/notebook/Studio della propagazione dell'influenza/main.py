@@ -29,6 +29,7 @@ if __name__ == "__main__":
     # Parameters
     run_models = True
     run_optimizers = True
+    force_recalculate = True
     logger.info_centrality = True
     save_to_file = True
     save_fig = True
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     gc.log_graph_info()
 
     # Ottieni e stampa le informazioni complete sul grafo
-    all_info = gc.get_all_graph_info(force_recalculate=False)
+    all_info = gc.get_all_graph_info(force_recalculate=force_recalculate)
     print("\nInformazioni complete sul grafo:")
     for key, value in all_info.items():
         if key == "Clustering per nodo":
@@ -59,7 +60,7 @@ if __name__ == "__main__":
         print(f"{key}: {value}")
 
     # Ottieni e stampa le centralità
-    centralities = gc.get_centralities_info(force_recalculate=False)
+    centralities = gc.get_centralities_info(force_recalculate=force_recalculate)
     print("\nCentralità calcolate:")
     for centrality_name, values in centralities.items():
         print(f"\n{centrality_name}:")

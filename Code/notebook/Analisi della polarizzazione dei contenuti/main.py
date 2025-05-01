@@ -37,10 +37,10 @@ def main():
     user_opinions = preprocessor.extract_user_opinions(graph_builder)
 
     # Estrazione dei sentiment dal grafo
-    sentiment_scores = SentimentAnalyzer().extract_sentiments_from_graph(graph)
+    sentiment_scores = SentimentAnalyzer().extract_sentiments_from_graph(graph_builder)
 
     # Clustering
-    clustering = Clustering()
+    clustering = Clustering(output_dir=output_dir)
     cluster_labels = clustering.cluster(user_opinions, method="dbscan")
 
     # Visualizzazione dei cluster

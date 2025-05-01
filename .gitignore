@@ -4,3 +4,4 @@ venv
 env
 prog
 __pycache__
+.python-version

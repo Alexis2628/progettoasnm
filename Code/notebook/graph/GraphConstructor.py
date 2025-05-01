@@ -61,8 +61,8 @@ class GraphConstructor:
             "Code/data_extraction/total_post2.csv",
             "Code/data_extraction/total_post3.csv",
         ],
-        info_filepath="graph_info.json",
-        centralities_filepath="centralities_info.json",
+        info_filepath="Code/notebook/graph/info/graph_info.json",
+        centralities_filepath="Code/notebook/graph/info/centralities_info.json",
     ):
 
         self.df = pd.concat(

@@ -1,0 +1,21 @@
+[project]
+name = "progettoasnm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "gensim>=4.3.2",
+    "matplotlib>=3.10.1",
+    "networkx>=3.4.2",
+    "nltk>=3.9.1",
+    "pandas>=2.2.3",
+    "pyldavis>=3.4.1",
+    "scikit-learn>=1.6.1",
+    "scipy==1.10.1",
+    "seaborn>=0.13.2",
+    "textblob>=0.19.0",
+    "torch>=2.7.0",
+    "transformers>=4.51.3",
+    "wordcloud>=1.9.4",
+]
