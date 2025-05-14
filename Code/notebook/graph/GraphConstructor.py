@@ -1,10 +1,14 @@
 import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 import json
 import networkx as nx
 import random
 import pandas as pd
 import logging
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from Code.notebook.graph.utils import dtype_data
 
 
 # Funzioni helper per il calcolo delle centralità
@@ -30,13 +34,11 @@ def katz_centrality(graph):
         eigenvalues = nx.adjacency_spectrum(graph)
         largest_eig = max(abs(ev) for ev in eigenvalues)
         safe_alpha = 0.9 / largest_eig
-        logging.info(f"Utilizzo safe_alpha={safe_alpha:.6f} (lambda_max={largest_eig:.6f})")  
+        logging.info(
+            f"Utilizzo safe_alpha={safe_alpha:.6f} (lambda_max={largest_eig:.6f})"
+        )
         return nx.katz_centrality(
-                graph, 
-                alpha=safe_alpha, 
-                beta=1.0, 
-                max_iter=5000, 
-                tol=1e-4
+            graph, alpha=safe_alpha, beta=1.0, max_iter=5000, tol=1e-4
         )
     return nx.katz_centrality_numpy(graph, alpha=0.1, beta=1.0)
 
@@ -81,27 +83,15 @@ class GraphConstructor:
             [
                 pd.read_csv(
                     data_paths[0],
-                    dtype={
-                        "id": str,"post_pk": str,"caption_text": str,"like_count": int,"taken_at": str,
-                        "username": str,"user_pk": str,"quote_count": int,"repost_count": int,"reshare_count": int,
-                        "thread_user_pk": str,"caption_text_translated": str,"sentiment_score": float,"sentiment_label": str,
-                    },
+                    dtype=dtype_data,
                 ),
                 pd.read_csv(
                     data_paths[1],
-                    dtype={
-                        "id": str,"post_pk": str,"caption_text": str,"like_count": int,"taken_at": str,
-                        "username": str,"user_pk": str,"quote_count": int,"repost_count": int,"reshare_count": int,
-                        "thread_user_pk": str,"caption_text_translated": str,"sentiment_score": float,"sentiment_label": str,
-                    },
+                    dtype=dtype_data,
                 ),
                 pd.read_csv(
                     data_paths[2],
-                    dtype={
-                        "id": str,"post_pk": str,"caption_text": str,"like_count": int,"taken_at": str,
-                        "username": str,"user_pk": str,"quote_count": int,"repost_count": int,"reshare_count": int,
-                        "thread_user_pk": str,"caption_text_translated": str,"sentiment_score": float,"sentiment_label": str,
-                    },
+                    dtype=dtype_data,
                 ),
             ]
         )

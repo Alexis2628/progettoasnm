@@ -5,8 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 sys.setrecursionlimit(10000)
 from utils.logger import setup_logger
 from Code.notebook.graph.GraphConstructor import GraphConstructor
-from utils.plotter import Plotter
-from utils.file_utils import save_results_to_file, convert_sets_in_dict
+from utils.file_utils import save_results_to_file
 import os
 from utils.run_models import (
     run_models_on_different_seed_lengths,
@@ -16,7 +15,6 @@ from utils.run_models import (
 import random
 
 random.seed(42)
-from models.models import Models
 from optimizers.optimizer import Optimizer
 import logging
 
@@ -29,7 +27,7 @@ if __name__ == "__main__":
     # Parameters
     run_models = True
     run_optimizers = True
-    force_recalculate = True
+    force_recalculate = False
     logger.info_centrality = True
     save_to_file = True
     save_fig = True
@@ -43,10 +41,7 @@ if __name__ == "__main__":
     )
 
     logger.info("Initializing GraphConstructor")
-    gc = GraphConstructor(
-        info_filepath="graph_info.json",
-        centralities_filepath="centralities_info.json",
-    )
+    gc = GraphConstructor()
     gc.build_graph()
     graph = gc.graph
     gc.log_graph_info()

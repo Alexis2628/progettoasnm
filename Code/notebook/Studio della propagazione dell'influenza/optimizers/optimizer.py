@@ -11,6 +11,17 @@ from .tim_plus import tim_plus
 from .easyim import easyim
 from .sketching import sketching
 from .singles import singles
+import logging
+
+# Configure root logger (this can be moved to your main entry point)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+
+logger = logging.getLogger(__name__)
+
 
 class Optimizer:
     def __init__(self, graph):
@@ -81,25 +92,41 @@ class Optimizer:
         :return: Dizionario con i risultati di tutti gli algoritmi.
         """
         results = {}
-        results['Greedy'] = self.run_greedy(k, p)
-        results['CELF'] = self.run_celf(k, p)
-        results['CELF++'] = self.run_celf_plus(k, p)
-        results['Stop-And-Go'] = self.run_stop_and_go(k, p)
-        results['Static'] = self.run_static(k, p)
-        results['SIMPATH'] = self.run_simpath(k, p, path_limit=kwargs.get('path_limit', 3))
-        results['LDAG'] = self.run_ldag(k, p, threshold=kwargs.get('threshold', 0.5))
-        results['IRIE'] = self.run_irie(k, p)
-        results['PMC'] = self.run_pmc(k, p)
-        results['TIM+'] = self.run_tim_plus(k, p, rr_sets=kwargs.get('rr_sets', 100))
-        results['EaSyIM'] = self.run_easyim(k, p)
-        results['Sketching'] = self.run_sketching(k, p)
-        results['Singles'] = self.run_singles(k, p)
+        algos = [
+            ("Greedy", self.run_greedy, {}),
+            ("CELF", self.run_celf, {}),
+            ("CELF++", self.run_celf_plus, {}),
+            ("Stop-And-Go", self.run_stop_and_go, {}),
+            ("Static", self.run_static, {}),
+            ("SIMPATH", self.run_simpath, {"path_limit": kwargs.get("path_limit", 3)}),
+            ("LDAG", self.run_ldag, {"threshold": kwargs.get("threshold", 0.5)}),
+            ("IRIE", self.run_irie, {}),
+            ("PMC", self.run_pmc, {}),
+            ("TIM+", self.run_tim_plus, {"rr_sets": kwargs.get("rr_sets", 100)}),
+            ("EaSyIM", self.run_easyim, {}),
+            ("Sketching", self.run_sketching, {}),
+            ("Singles", self.run_singles, {}),
+        ]
+
+        for name, func, extra_args in algos:
+            try:
+                logger.info(f"Starting algorithm: %s", name)
+                # Merge common and specific parameters
+                params = {"k": k, "p": p}
+                params.update(extra_args)
+                result = func(**params)
+                results[name] = result
+                logger.info(f"Completed algorithm: %s | Result: %s", name, result)
+            except Exception as e:
+                logger.error(
+                    f"Algorithm %s failed with error: %s", name, e, exc_info=True
+                )
+                results[name] = None
 
         self.print_results(results)
         return results
 
-
-    def print_results(self,optimization_results):
+    def print_results(self, optimization_results):
         # Stampa dei risultati degli algoritmi di ottimizzazione
         print("\nRisultati degli algoritmi di ottimizzazione:")
         for algo_name, result in optimization_results.items():
