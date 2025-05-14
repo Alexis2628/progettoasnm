@@ -1,0 +1,16 @@
+dtype_data = {
+    "id": str,
+    "post_pk": str,
+    "caption_text": str,
+    "like_count": int,
+    "taken_at": str,
+    "username": str,
+    "user_pk": str,
+    "quote_count": int,
+    "repost_count": int,
+    "reshare_count": int,
+    "thread_user_pk": str,
+    "caption_text_translated": str,
+    "sentiment_score": float,
+    "sentiment_label": str,
+}
