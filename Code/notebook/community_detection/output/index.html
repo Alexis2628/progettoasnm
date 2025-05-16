@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cluster Graph 3D</title>
+    <style>
+      body { margin: 0; overflow: hidden; background: #d0d0d0; }
+      #graph3d { width: 100vw; height: 100vh; display: block; }
+      #info-panel {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 400px;
+        max-height: 85vh;
+        overflow-y: auto;
+        padding: 16px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        display: none;
+        z-index: 10;
+      }
+      #info-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        border: none;
+        background: transparent;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      /* Lista utenti come card con accordion */
+      #top-users-list { list-style: none; margin: 0; padding: 0; }
+      .user-card { margin-bottom: 12px; padding: 8px; background: #fafafa;
+                   border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+      .user-card summary {
+        font-size: 1.05em;
+        font-weight: bold;
+        cursor: pointer;
+        margin-bottom: 6px;
+        list-style: none;
+      }
+      .user-card dl {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        column-gap: 8px;
+        row-gap: 4px;
+        font-size: 0.9em;
+      }
+      .user-card dt { color: #555; }
+      .user-card dd { margin: 0; color: #222; }
+    </style>
+  </head>
+  <body>
+    <div id="graph3d"></div>
+    <div id="info-panel">
+      <button id="info-close">×</button>
+      <h3 id="info-title"></h3>
+      <ul id="top-users-list"></ul>
+    </div>
+
+    <!-- Librerie esterne -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/3d-force-graph"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+
+    <script>
+      (async function() {
+        // --- 1) Carica i dati JSON ---
+        const clusterStats = await fetch('louvain_cluster_stats.json')
+          .then(res => {
+            if (!res.ok) throw new Error(res.statusText);
+            return res.json();
+          });
+
+        // --- 2) Prepara nodi, archi e scale ---
+        const counts     = Object.values(clusterStats).map(s => s.num_nodes);
+        const minCount   = Math.min(...counts);
+        const maxCount   = Math.max(...counts);
+        const radiusScale = d3.scaleLinear()
+          .domain([minCount, maxCount])
+          .range([12, 35]);
+        const colorScale  = d3.scaleOrdinal(d3.schemeCategory10);
+
+        const nodes = Object.entries(clusterStats).map(([id, stats]) => ({
+          id,
+          cluster: +id,
+          count: stats.num_nodes
+        }));
+
+        const links = [];
+        Object.entries(clusterStats).forEach(([id, stats]) => {
+          if (Array.isArray(stats.connected_clusters)) {
+            stats.connected_clusters.forEach(target => {
+              if (+id < +target) links.push({ source: id, target: String(target) });
+            });
+          }
+        });
+
+        const graphData = { nodes, links };
+
+        // --- 3) Inizializza il grafico 3D ---
+        const Graph3D = ForceGraph3D()(document.getElementById('graph3d'))
+          .graphData(graphData)
+          .backgroundColor('#e0e0e0')
+          .enableNavigationControls(true)
+          .linkColor(() => 'rgba(100,100,100,0.6)')
+          .linkOpacity(0.6)
+          .linkWidth(1)
+          .nodeColor(d => colorScale(d.cluster))
+          .nodeThreeObject(d =>
+            new THREE.Mesh(
+              new THREE.SphereGeometry(radiusScale(d.count)),
+              new THREE.MeshPhongMaterial({ color: colorScale(d.cluster) })
+            )
+          )
+          .nodeLabel(d => `Cluster ${d.cluster}\n
+          Utenti: ${d.count}`);
+
+        // Regola forza di repulsione
+        Graph3D.d3Force('charge').strength(-50);
+
+        // Allunga la distanza ideale degli archi
+        const linkForce = Graph3D.d3Force('link')
+          .distance(() => 400)
+          .strength(0.5);
+        Graph3D.d3Force('link', linkForce);
+
+        // --- 4) Pannello info al click sul nodo ---
+        const panel    = document.getElementById('info-panel');
+        const titleEl  = document.getElementById('info-title');
+        const listEl   = document.getElementById('top-users-list');
+        const closeBtn = document.getElementById('info-close');
+
+        Graph3D.onNodeClick(node => {
+          const stats = clusterStats[node.id];
+
+          // Costruzione contenuto titolo con cluster e statistiche
+          titleEl.innerHTML = `
+            <strong>Cluster ${node.cluster}</strong><br>
+            <ul style="list-style: none; padding-left: 0;">
+              <li><strong>num_nodes:</strong> ${stats.num_nodes}</li>
+              <li><strong>num_edges:</strong> ${stats.num_edges}</li>
+              <li><strong>avg_degree:</strong> ${stats.avg_degree.toFixed(2)}</li>
+              <li><strong>density:</strong> ${stats.density.toFixed(4)}</li>
+              <li><strong>num_communities:</strong> ${stats.num_communities}</li>
+              <li><strong>modularity:</strong> ${stats.modularity.toFixed(4)}</li>
+              <li><strong>coverage:</strong> ${stats.coverage.toFixed(4)}</li>
+              <li><strong>performance:</strong> ${stats.performance.toFixed(4)}</li>
+            </ul>
+            <hr>
+            <strong>Top utenti</strong>
+          `;
+
+          // Pulizia lista utenti
+          listEl.innerHTML = '';
+
+          if (Array.isArray(stats.top_users) && stats.top_users.length > 0) {
+            stats.top_users.forEach(u => {
+              const li = document.createElement('li');
+              li.innerHTML = `
+                <details class="user-card">
+                  <summary><strong>${u.username || u.user_pk}</strong> (grado: ${u.degree})</summary>
+                  <dl>
+                    <dt>User PK:</dt><dd>${u.user_pk}</dd>
+                    <dt>Post count:</dt><dd>${u.post_count}</dd>
+                    <dt>Total likes:</dt><dd>${u.total_likes}</dd>
+                    <dt>Avg likes:</dt><dd>${u.avg_likes.toFixed(2)}</dd>
+                    <dt>Total quotes:</dt><dd>${u.total_quotes}</dd>
+                    <dt>Total reposts:</dt><dd>${u.total_reposts}</dd>
+                    <dt>Total reshares:</dt><dd>${u.total_reshares}</dd>
+                    <dt>Avg sentiment:</dt><dd>${u.avg_sentiment.toFixed(3)}</dd>
+                    <dt>First post:</dt><dd>${u.first_post || "N/A"}</dd>
+                    <dt>Last post:</dt><dd>${u.last_post || "N/A"}</dd>
+                  </dl>
+                </details>
+              `;
+              listEl.appendChild(li);
+            });
+          } else {
+            listEl.innerHTML = '<li><em>Nessun dato disponibile</em></li>';
+          }
+
+          panel.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', () => panel.style.display = 'none');
+      })();
+    </script>
+  </body>
+</html>
