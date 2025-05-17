@@ -1,0 +1,180 @@
+{
+  "2": {
+    "num_nodes": 1816,
+    "num_edges": 1188,
+    "avg_degree": 1.3083700440528634,
+    "density": 0.0007208650380456547,
+    "top_users": [
+      {
+        "user_pk": "64089537281.0",
+        "degree": 67,
+        "username": "gabriel_lagon",
+        "post_count": 50,
+        "total_likes": 68,
+        "avg_likes": 1.36,
+        "total_quotes": 0,
+        "total_reposts": 2,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9611293625831604
+      },
+      {
+        "user_pk": "66561421601.0",
+        "degree": 54,
+        "username": "theinversecollection",
+        "post_count": 50,
+        "total_likes": 205,
+        "avg_likes": 4.1,
+        "total_quotes": 0,
+        "total_reposts": 18,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9477261471748352
+      },
+      {
+        "user_pk": "63239789554.0",
+        "degree": 52,
+        "username": "jdubmusic",
+        "post_count": 14,
+        "total_likes": 133,
+        "avg_likes": 9.5,
+        "total_quotes": 1,
+        "total_reposts": 6,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9887801238468715
+      },
+      {
+        "user_pk": "63408358314.0",
+        "degree": 50,
+        "username": "jayrob_music",
+        "post_count": 2,
+        "total_likes": 2,
+        "avg_likes": 1.0,
+        "total_quotes": 0,
+        "total_reposts": 0,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9603241384029388
+      },
+      {
+        "user_pk": "66769627005.0",
+        "degree": 44,
+        "username": "exileonmainst_",
+        "post_count": 51,
+        "total_likes": 338,
+        "avg_likes": 6.627450980392157,
+        "total_quotes": 4,
+        "total_reposts": 7,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9762904421955931
+      }
+    ],
+    "connected_clusters": [
+      0,
+      1
+    ],
+    "num_communities": 3,
+    "modularity": 0.07112858919064002,
+    "coverage": 0.9075081828952388,
+    "performance": 0.10934743166394437
+  },
+  "0": {
+    "num_nodes": 29515,
+    "num_edges": 44005,
+    "avg_degree": 2.98187362358123,
+    "density": 0.00010103251418246358,
+    "top_users": [
+      {
+        "user_pk": "63613344044.0",
+        "degree": 1550,
+        "username": "voorhees_dnb",
+        "post_count": 80,
+        "total_likes": 1946,
+        "avg_likes": 24.325,
+        "total_quotes": 8,
+        "total_reposts": 49,
+        "total_reshares": 33,
+        "avg_sentiment": 0.9680777110159398
+      },
+      {
+        "user_pk": "68109902162.0",
+        "degree": 1430,
+        "username": "elonreevesmusk__01",
+        "post_count": 60,
+        "total_likes": 6177,
+        "avg_likes": 102.95,
+        "total_quotes": 30,
+        "total_reposts": 91,
+        "total_reshares": 415,
+        "avg_sentiment": 0.9850028038024903
+      },
+      {
+        "user_pk": "68807825235.0",
+        "degree": 1402,
+        "username": "roguecurrents",
+        "post_count": 56,
+        "total_likes": 987,
+        "avg_likes": 17.625,
+        "total_quotes": 2,
+        "total_reposts": 16,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9623785146645137
+      },
+      {
+        "user_pk": "66411901180.0",
+        "degree": 1395,
+        "username": "mayornayr",
+        "post_count": 40,
+        "total_likes": 47637,
+        "avg_likes": 1190.925,
+        "total_quotes": 311,
+        "total_reposts": 5694,
+        "total_reshares": 1884,
+        "avg_sentiment": 0.973307090997696
+      },
+      {
+        "user_pk": "63400205749.0",
+        "degree": 729,
+        "username": "gilbert_amatta",
+        "post_count": 27,
+        "total_likes": 27148,
+        "avg_likes": 1005.4814814814815,
+        "total_quotes": 6,
+        "total_reposts": 365,
+        "total_reshares": 414,
+        "avg_sentiment": 0.9604661597145928
+      }
+    ],
+    "connected_clusters": [
+      2
+    ],
+    "num_communities": 3,
+    "modularity": 0.07112858919064002,
+    "coverage": 0.9075081828952388,
+    "performance": 0.10934743166394437
+  },
+  "1": {
+    "num_nodes": 1,
+    "num_edges": 0,
+    "avg_degree": 0.0,
+    "density": 0,
+    "top_users": [
+      {
+        "user_pk": "63095622792.0",
+        "degree": 0,
+        "username": "kyroee",
+        "post_count": 26,
+        "total_likes": 34625,
+        "avg_likes": 1331.7307692307693,
+        "total_quotes": 376,
+        "total_reposts": 5428,
+        "total_reshares": 1551,
+        "avg_sentiment": 0.915620934504729
+      }
+    ],
+    "connected_clusters": [
+      2
+    ],
+    "num_communities": 3,
+    "modularity": 0.07112858919064002,
+    "coverage": 0.9075081828952388,
+    "performance": 0.10934743166394437
+  }
+}

@@ -97,10 +97,17 @@ def main(force: bool = False):
             info['modularity']      = m
             info['coverage']        = cov
             info['performance']     = perf
-
+            
+        stats = {int(cid): info for cid, info in stats.items()}
         # salva JSON
         with open(out_path, 'w', encoding='utf-8') as f:
-            json.dump(stats, f, indent=2, ensure_ascii=False)
+            json.dump(
+                stats,
+                f,
+                indent=2,
+                ensure_ascii=False,
+                default=lambda x: x.item() if hasattr(x, 'item') else x
+            )
         logger.info(f'Salvato: {out_path}')
 
     # 3) Confronto tra metodi (stats già iniettate, serve solo per plotting/CSV)

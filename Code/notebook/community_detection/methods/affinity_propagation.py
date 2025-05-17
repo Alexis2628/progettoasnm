@@ -20,7 +20,8 @@ def affinity_propagation_clustering(
     labels : dict
         Mappa nodo->cluster (int).
     """
-    A: csr_matrix = nx.adjacency_matrix(graph)
+    #A: csr_matrix = nx.adjacency_matrix(graph)
+    X = nx.to_numpy_array(graph)
     ap = AffinityPropagation(
         damping=damping,
         preference=preference,
@@ -28,6 +29,6 @@ def affinity_propagation_clustering(
         convergence_iter=15,
         verbose=True,
     )
-    y = ap.fit_predict(A)
+    y = ap.fit_predict(X)
     nodes = list(graph.nodes())
     return dict(zip(nodes, y))

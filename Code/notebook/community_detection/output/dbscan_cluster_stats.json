@@ -1,0 +1,70 @@
+{
+  "-1": {
+    "num_nodes": 8813,
+    "num_edges": 25709,
+    "avg_degree": 5.834335640531034,
+    "density": 0.0006620898366467355,
+    "top_users": [
+      {
+        "user_pk": "66411901180.0",
+        "degree": 943,
+        "username": "mayornayr",
+        "post_count": 40,
+        "total_likes": 47637,
+        "avg_likes": 1190.925,
+        "total_quotes": 311,
+        "total_reposts": 5694,
+        "total_reshares": 1884,
+        "avg_sentiment": 0.973307090997696
+      },
+      {
+        "user_pk": "63095622792.0",
+        "degree": 598,
+        "username": "kyroee",
+        "post_count": 26,
+        "total_likes": 34625,
+        "avg_likes": 1331.7307692307693,
+        "total_quotes": 376,
+        "total_reposts": 5428,
+        "total_reshares": 1551,
+        "avg_sentiment": 0.915620934504729
+      },
+      {
+        "user_pk": "63086999261.0",
+        "degree": 503,
+        "username": "heyitskimberlyn_",
+        "post_count": 59,
+        "total_likes": 23643,
+        "avg_likes": 400.728813559322,
+        "total_quotes": 24,
+        "total_reposts": 805,
+        "total_reshares": 251,
+        "avg_sentiment": 0.9419652587276394
+      },
+      {
+        "user_pk": "70429187510.0",
+        "degree": 388,
+        "username": "thejasminenichelle",
+        "post_count": 47,
+        "total_likes": 412,
+        "avg_likes": 8.76595744680851,
+        "total_quotes": 2,
+        "total_reposts": 12,
+        "total_reshares": 4,
+        "avg_sentiment": 0.9276241888391211
+      },
+      {
+        "user_pk": "68109902162.0",
+        "degree": 373,
+        "username": "elonreevesmusk__01",
+        "post_count": 60,
+        "total_likes": 6177,
+        "avg_likes": 102.95,
+        "total_quotes": 30,
+        "total_reposts": 91,
+        "total_reshares": 415,
+        "avg_sentiment": 0.9850028038024903
+      }
+    ],
+    "connected_clusters": [
+      

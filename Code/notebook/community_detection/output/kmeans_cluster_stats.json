@@ -1,0 +1,180 @@
+{
+  "0": {
+    "num_nodes": 31324,
+    "num_edges": 46460,
+    "avg_degree": 2.966415528029626,
+    "density": 9.470406819364766e-05,
+    "top_users": [
+      {
+        "user_pk": "63095622792.0",
+        "degree": 1816,
+        "username": "kyroee",
+        "post_count": 26,
+        "total_likes": 34625,
+        "avg_likes": 1331.7307692307693,
+        "total_quotes": 376,
+        "total_reposts": 5428,
+        "total_reshares": 1551,
+        "avg_sentiment": 0.915620934504729
+      },
+      {
+        "user_pk": "63613344044.0",
+        "degree": 1552,
+        "username": "voorhees_dnb",
+        "post_count": 80,
+        "total_likes": 1946,
+        "avg_likes": 24.325,
+        "total_quotes": 8,
+        "total_reposts": 49,
+        "total_reshares": 33,
+        "avg_sentiment": 0.9680777110159398
+      },
+      {
+        "user_pk": "68109902162.0",
+        "degree": 1431,
+        "username": "elonreevesmusk__01",
+        "post_count": 60,
+        "total_likes": 6177,
+        "avg_likes": 102.95,
+        "total_quotes": 30,
+        "total_reposts": 91,
+        "total_reshares": 415,
+        "avg_sentiment": 0.9850028038024903
+      },
+      {
+        "user_pk": "66411901180.0",
+        "degree": 1427,
+        "username": "mayornayr",
+        "post_count": 40,
+        "total_likes": 47637,
+        "avg_likes": 1190.925,
+        "total_quotes": 311,
+        "total_reposts": 5694,
+        "total_reshares": 1884,
+        "avg_sentiment": 0.973307090997696
+      },
+      {
+        "user_pk": "63400205749.0",
+        "degree": 731,
+        "username": "gilbert_amatta",
+        "post_count": 27,
+        "total_likes": 27148,
+        "avg_likes": 1005.4814814814815,
+        "total_quotes": 6,
+        "total_reposts": 365,
+        "total_reshares": 414,
+        "avg_sentiment": 0.9604661597145928
+      }
+    ],
+    "connected_clusters": [
+      1,
+      2
+    ],
+    "num_communities": 3,
+    "modularity": -0.0006445751677561586,
+    "coverage": 0.9334926404144661,
+    "performance": 0.0005985231842704715
+  },
+  "1": {
+    "num_nodes": 1,
+    "num_edges": 0,
+    "avg_degree": 0.0,
+    "density": 0,
+    "top_users": [
+      {
+        "user_pk": "68807825235.0",
+        "degree": 0,
+        "username": "roguecurrents",
+        "post_count": 56,
+        "total_likes": 987,
+        "avg_likes": 17.625,
+        "total_quotes": 2,
+        "total_reposts": 16,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9623785146645137
+      }
+    ],
+    "connected_clusters": [
+      0
+    ],
+    "num_communities": 3,
+    "modularity": -0.0006445751677561586,
+    "coverage": 0.9334926404144661,
+    "performance": 0.0005985231842704715
+  },
+  "2": {
+    "num_nodes": 7,
+    "num_edges": 27,
+    "avg_degree": 7.714285714285714,
+    "density": 1.2857142857142858,
+    "top_users": [
+      {
+        "user_pk": "63251591131.0",
+        "degree": 8,
+        "username": "ohnelleyeah",
+        "post_count": 43,
+        "total_likes": 4355,
+        "avg_likes": 101.27906976744185,
+        "total_quotes": 14,
+        "total_reposts": 314,
+        "total_reshares": 64,
+        "avg_sentiment": 0.9609997799230177
+      },
+      {
+        "user_pk": "63298160692.0",
+        "degree": 8,
+        "username": "msmarshellw",
+        "post_count": 48,
+        "total_likes": 517,
+        "avg_likes": 10.770833333333334,
+        "total_quotes": 0,
+        "total_reposts": 1,
+        "total_reshares": 0,
+        "avg_sentiment": 0.9312195641299089
+      },
+      {
+        "user_pk": "63253515204.0",
+        "degree": 8,
+        "username": "techtualchatter",
+        "post_count": 51,
+        "total_likes": 568,
+        "avg_likes": 11.137254901960784,
+        "total_quotes": 8,
+        "total_reposts": 28,
+        "total_reshares": 6,
+        "avg_sentiment": 0.9834190092834771
+      },
+      {
+        "user_pk": "67982817270.0",
+        "degree": 8,
+        "username": "affyayomikun",
+        "post_count": 21,
+        "total_likes": 52,
+        "avg_likes": 2.4761904761904763,
+        "total_quotes": 0,
+        "total_reposts": 1,
+        "total_reshares": 1,
+        "avg_sentiment": 0.9746763337226141
+      },
+      {
+        "user_pk": "68258046872.0",
+        "degree": 8,
+        "username": "quentin.d.h",
+        "post_count": 49,
+        "total_likes": 79,
+        "avg_likes": 1.6122448979591837,
+        "total_quotes": 2,
+        "total_reposts": 3,
+        "total_reshares": 3,
+        "avg_sentiment": 0.9553203436793113
+      }
+    ],
+    "connected_clusters": [
+      0
+    ],
+    "num_communities": 3,
+    "modularity": -0.0006445751677561586,
+    "coverage": 0.9334926404144661,
+    "performance": 0.0005985231842704715
+  }
+}
