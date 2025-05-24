@@ -1,4 +1,4 @@
-user_pk,follower_pk,follower_username,follower_count,user_threads_userpk,username
+user_pk,follower_pk,follower_username,follower_count,thread_user_pk,username
 31805920812,70726149166,arts.wh0re,123,63073067781,aliencoremuzik
 31805920812,60882225687,cc.jayyyy,34,63073067781,aliencoremuzik
 31805920812,55386498420,aliquashady999,120,63073067781,aliencoremuzik
