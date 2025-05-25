@@ -35,7 +35,7 @@ if __name__ == "__main__":
     seed_lengths = [10, 50, 100, 200]
 
     logger.info(
-        "Parameters set. Run models: S%s, Run optimizers: %s",
+        "Parameters set. Run models: %s, Run optimizers: %s",
         run_models,
         run_optimizers,
     )
