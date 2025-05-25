@@ -56,15 +56,15 @@ class GraphConstructor:
     def __init__(
         self,
         followers_paths=[
-            "Code/data_extraction/followers.csv",
+            r"Code\data_extraction\data\processed\followers.csv",
         ],
         data_paths=[
-            "Code/data_extraction/total_post1.csv",
-            "Code/data_extraction/total_post2.csv",
-            "Code/data_extraction/total_post3.csv",
+            r"Code\data_extraction\data\processed\post_data\total_post1.csv",
+            r"Code\data_extraction\data\processed\post_data\total_post2.csv",
+            r"Code\data_extraction\data\processed\post_data\total_post3.csv",
         ],
-        info_filepath="Code/notebook/graph/info/graph_info.json",
-        centralities_filepath="Code/notebook/graph/info/centralities_info.json",
+        info_filepath=r"Code/notebook/graph/info/graph_info.json",
+        centralities_filepath=r"Code/notebook/graph/info/centralities_info.json",
     ):
 
         self.df = pd.concat(

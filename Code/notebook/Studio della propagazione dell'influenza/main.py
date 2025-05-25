@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # Parameters
     run_models = True
     run_optimizers = True
-    force_recalculate = False
+    force_recalculate = True
     logger.info_centrality = True
     save_to_file = True
     save_fig = True
