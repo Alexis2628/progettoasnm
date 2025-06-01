@@ -25,12 +25,12 @@ if __name__ == "__main__":
     logger.info("Starting the influence propagation analysis script.")
 
     # Parameters
-    run_models = True
-    run_optimizers = True
-    force_recalculate = True
-    logger.info_centrality = True
-    save_to_file = True
-    save_fig = True
+    run_models = False
+    run_optimizers = False
+    force_recalculate = False
+    logger.info_centrality = False
+    save_to_file = False
+    save_fig = False
     steps = 100
     seed_lengths = [10, 50, 100, 200]
 

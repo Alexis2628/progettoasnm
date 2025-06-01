@@ -2,6 +2,7 @@ from textblob import TextBlob
 from transformers import pipeline
 import torch
 import logging
+import pandas as pd
 
 class SentimentAnalyzer:
     def __init__(self, method="textblob"):
@@ -26,7 +27,7 @@ class SentimentAnalyzer:
 
     def extract_sentiments_from_graph(self,graph_builder):
         logging.info("Estrazione dei dati di sentiment aggregati per utente.")
-        df_data = graph_builder.data
+        df_data:pd.DataFrame = graph_builder.data
         def compute_sentiment(scores, labels):
             sentiments = []
             for score, label in zip(scores, labels):
@@ -38,7 +39,7 @@ class SentimentAnalyzer:
                     sentiments.append(0.5)
             return sum(sentiments) / len(sentiments) if sentiments else 0.5
         
-        sentiment_scores = df_data.groupby("thread_user_pk").apply(
+        sentiment_scores = df_data.groupby("thread_user_pk", group_keys=False).apply(
             lambda x: compute_sentiment(x["sentiment_score"], x["sentiment_label"])
         ).to_dict()
         

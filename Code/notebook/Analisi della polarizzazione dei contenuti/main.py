@@ -25,12 +25,8 @@ def main():
     logging.info("Inizio del processo principale.")
     output_dir = r"Code//notebook//Analisi della polarizzazione dei contenuti//output"
     # Costruzione del grafo
-    graph_builder = GraphConstructor(
-        info_filepath="graph_info.json",
-        centralities_filepath="centralities_info.json",
-    )
+    graph_builder = GraphConstructor()
     graph_builder.build_graph()
-    graph = graph_builder.graph
 
     # Estrazione e pre-elaborazione dei testi
     preprocessor = TextPreprocessor()
@@ -76,7 +72,6 @@ def main():
     wordcloud_visualizer.visualize(polarizing_words, output_dir, "Bi")
 
     # Topic Modeling
-
     topic_modeling = TopicModeling()
     lda_model, dictionary, corpus = topic_modeling.perform_topic_modeling(
         user_opinions, len(set(cluster_labels.values()))
