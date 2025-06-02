@@ -9,27 +9,49 @@ logger = logging.getLogger(__name__)
 class DataManager:
     """
     Classe per gestire il caricamento dei CSV di input/output, il filtraggio dei post già
-    processati e il salvataggio dei risultati.
+    processati e il salvataggio dei risultati. Ora supporta un output_dir diverso da input.
     """
 
-    def __init__(self, input_path: str, suffix: str = "_sentiment_analysis"):
+    def __init__(self, input_path: str, output_dir: Optional[str] = None, suffix: str = "_sentiment_analysis"):
         """
         Parametri:
             input_path (str): percorso al file CSV di input.
-            suffix (str): suffisso da aggiungere al nome base per il file di output.
+            output_dir (str o None): cartella in cui salvare il file di output. 
+                                     Se None, salva nella stessa cartella di input.
+            suffix (str): suffisso da aggiungere al nome base per il file di output (default "_sentiment_analysis").
         """
-        logger.info(f"Inizializzazione DataManager con input_path: '{input_path}' e suffisso: '{suffix}'")
+        logger.info(f"Inizializzazione DataManager con input_path: '{input_path}', output_dir: '{output_dir}', suffisso: '{suffix}'")
         self.input_path = input_path
-        base, ext = os.path.splitext(input_path)
-        self.output_path = f"{base}{suffix}.csv"
-        self.df_input: Optional[pd.DataFrame] = None
-        self.df_output: Optional[pd.DataFrame] = None
-        self.df_new: Optional[pd.DataFrame] = None
+
+        # Estrai nome base del file (senza path e senza estensione)
+        base_filename = os.path.splitext(os.path.basename(input_path))[0]
+        output_filename = f"{base_filename}{suffix}.csv"
+
+        # Se è stata fornita una cartella di output, assicurati che esista o la crei
+        if output_dir:
+            if not os.path.isdir(output_dir):
+                try:
+                    os.makedirs(output_dir, exist_ok=True)
+                    logger.info(f"Cartella di output '{output_dir}' creata (o già esistente).")
+                except Exception as e:
+                    logger.error(f"Impossibile creare la cartella di output '{output_dir}': {e}")
+                    raise
+            # Costruisci il percorso completo in output_dir
+            self.output_path = os.path.join(output_dir, output_filename)
+        else:
+            # Comportamento originale: stesso percorso di input, stesse cartelle
+            base, _ = os.path.splitext(input_path)
+            self.output_path = f"{base}{suffix}.csv"
+
         logger.debug(f"Percorso di output calcolato: '{self.output_path}'")
+
+        self.df_input: Optional[pd.DataFrame] = None    # DataFrame con tutti i dati di input
+        self.df_output: Optional[pd.DataFrame] = None   # DataFrame con i dati già processati (se esiste)
+        self.df_new: Optional[pd.DataFrame] = None      # DataFrame con i soli post nuovi da processare
 
     def load_input(self) -> bool:
         """
-        Carica il file CSV di input in self.df_input.
+        Carica il file CSV di input in self.df_input. 
         Ritorna True se l'operazione ha avuto successo, False altrimenti.
         """
         logger.info(f"Caricamento file di input: '{self.input_path}'")
@@ -78,8 +100,7 @@ class DataManager:
         if self.df_output is None:
             # Tutti i post di input sono nuovi
             self.df_new = self.df_input.copy()
-            logger.info(f"Tutti i {len(self.df_new)} post di input saranno processati "
-                        f"(nessun file di output precedente).")
+            logger.info(f"Tutti i {len(self.df_new)} post di input saranno processati (nessun file di output precedente).")
         else:
             processed_pks: Set = set(self.df_output['post_pk'].astype(str).tolist())
             total_input = len(self.df_input)
@@ -87,7 +108,7 @@ class DataManager:
             mask_new = ~self.df_input['post_pk'].astype(str).isin(processed_pks)
             self.df_new = self.df_input[mask_new].copy()
             new_count = len(self.df_new)
-            logger.info(f"Su {total_input} post totali, {new_count} risultano nuovi e saranno processati.")
+            logger.info(f"Su {total_input} post totali, {new_count} risultati nuovi da processare.")
 
     def save_combined(self, df_combined: pd.DataFrame) -> None:
         """

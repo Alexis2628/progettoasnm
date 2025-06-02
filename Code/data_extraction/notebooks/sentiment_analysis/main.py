@@ -3,6 +3,7 @@ import sys
 import argparse
 import logging
 import math
+from typing import List, Optional
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
 import pandas as pd
@@ -21,7 +22,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def main(input_files):
+def main(input_files: List[str], output_dir: Optional[str] = None):
     """
     Per ciascun file CSV di input:
       1) Inizializza DataManager con input_path.
@@ -47,7 +48,7 @@ def main(input_files):
         logger.info(f"--- Elaborazione file: {file_label} ---")
 
         # 1) Inizializza DataManager
-        dm = DataManager(input_path)
+        dm = DataManager(input_path, output_dir=output_dir)
         logger.info(f"Creata istanza DataManager per '{file_label}', output previsto: '{os.path.basename(dm.output_path)}'")
 
         # 2) Carica eventuale output esistente
@@ -143,7 +144,6 @@ def main(input_files):
 
     logger.info("Elaborazione completata per tutti i file.")
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Script per analisi del sentiment su post social media in file CSV."
@@ -159,6 +159,13 @@ if __name__ == "__main__":
             r"Code\data_extraction\data\interim\post_data\total_post3.csv"
         ]
     )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        required=False,
+        default=None,
+        help="Cartella in cui salvare i file di output. Se non specificata, salva nella stessa cartella di input."
+    )
     args = parser.parse_args()
 
     # Controllo che tutti i file di input esistano
@@ -167,4 +174,4 @@ if __name__ == "__main__":
         logger.error(f"I seguenti file di input non esistono: {missing}")
         sys.exit(1)
 
-    main(args.input_files)
+    main(args.input_files, args.output_dir)
