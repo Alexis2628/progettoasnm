@@ -13,4 +13,9 @@ dtype_data = {
     "caption_text_translated": str,
     "sentiment_score": float,
     "sentiment_label": str,
+    "text_clean": str,
+    "vader_compound": float,
+    "vader_label": str,
+    "transformer_label": str,
+    "transformer_score": float
 }

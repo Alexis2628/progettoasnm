@@ -1,143 +1,444 @@
-from sklearn.cluster import KMeans, DBSCAN
-import numpy as np
-from transformers import BertTokenizer, BertModel
-import torch
-from sklearn.cluster import MiniBatchKMeans, DBSCAN
-from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np
-import logging
-import re
-import pickle
 import os
+import pickle
+import logging
+from typing import Dict, List, Any, Optional
+import numpy as np
+from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering, SpectralClustering,MiniBatchKMeans
+from sklearn.preprocessing import normalize
+from sentence_transformers import SentenceTransformer  # pip install sentence-transformers
+import hdbscan  # pip install hdbscan
+import umap  # pip install umap-learn
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
 
-class Clustering:
-    def __init__(self, max_features=10000, cluster_file='/cluster_labels.pkl', output_dir = ""):
+class ClusteringTFIDF:
+    """
+    Classe per effettuare clustering su testi utilizzando TF-IDF, con varie opzioni configurabili:
+    - Supporto a riduzione di dimensionalità (LSA)
+    - Algoritmi di clustering: k-means, spherical k-means, DBSCAN, HDBSCAN, Spectral, Agglomerative
+    - Parametri di TfidfVectorizer personalizzabili
+    - Estrazione di parole chiave polarizzanti
+    """
+
+    def __init__(
+        self,
+        max_features: int = 10000,
+        ngram_range: tuple = (1, 1),
+        stop_words: Optional[str] = 'english',
+        min_df: float = 0.0,
+        max_df: float = 1.0,
+        use_lsa: bool = False,
+        lsa_components: int = 100,
+        cluster_file: str = 'cluster_labels_tfidf.pkl',
+        vectorizer_file: str = 'tfidf_vectorizer.pkl',
+        output_dir: str = ""
+    ):
         """
-        Inizializza la classe con:
-        - max_features: limite sul numero massimo di feature per TF-IDF.
-        - cluster_file: percorso del file dove salvare i cluster.
+        Parametri:
+        - max_features: numero massimo di feature per TF-IDF
+        - ngram_range: range degli n-grammi (min_n, max_n)
+        - stop_words: stop words ('english', lista personalizzata o None)
+        - min_df, max_df: soglie per TF-IDF (valori assoluti o frazioni)
+        - use_lsa: se True, applica LSA prima del clustering
+        - lsa_components: numero di componenti per la decomposizione SVD
+        - cluster_file: percorso per salvare/ripristinare i label dei cluster
+        - vectorizer_file: percorso per salvare/ripristinare il vettorizzatore TF-IDF
+        - output_dir: directory di output in cui salvare i file
         """
         self.max_features = max_features
-        self.cluster_file = output_dir + cluster_file
+        self.ngram_range = ngram_range
+        self.stop_words = stop_words
+        self.min_df = min_df
+        self.max_df = max_df
+        self.use_lsa = use_lsa
+        self.lsa_components = lsa_components
 
-    def cluster(self, user_opinions, method="kmeans",n_clusters=20):
-        # Se il file dei cluster esiste, carica i risultati salvati
+        # Percorsi completi per i file di pickle
+        self.cluster_file = os.path.join(output_dir, cluster_file)
+        self.vectorizer_file = os.path.join(output_dir, vectorizer_file)
+
+        # Variabili interne
+        self.vectorizer: Optional[TfidfVectorizer] = None
+        self.svd_model: Optional[TruncatedSVD] = None
+
+    def _fit_vectorizer(self, texts: List[str]):
+        """
+        Inizializza e adatta il TfidfVectorizer sui testi.
+        Se use_lsa=True, salva anche il modello SVD per riduzione.
+        """
+        self.vectorizer = TfidfVectorizer(
+            max_features=self.max_features,
+            ngram_range=self.ngram_range,
+            stop_words=self.stop_words,
+            min_df=self.min_df,
+            max_df=self.max_df
+        )
+        X = self.vectorizer.fit_transform(texts)
+        # Salvo il vettorizzatore per usi futuri
+        with open(self.vectorizer_file, 'wb') as f:
+            pickle.dump(self.vectorizer, f)
+        logging.info(f"TF-IDF Vectorizer salvato in {self.vectorizer_file}")
+
+        if self.use_lsa:
+            # Applico LSA (TruncatedSVD) per riduzione di dimensionalità
+            self.svd_model = TruncatedSVD(n_components=self.lsa_components, random_state=42)
+            X = self.svd_model.fit_transform(X)
+            logging.info(f"LSA applicata con {self.lsa_components} componenti (Deerwester et al., 1990)")
+        return X
+
+    def _load_vectorizer_if_exists(self) -> Optional[Any]:
+        """
+        Se il file del vettorizzatore esiste, lo carica e restituisce l'output trasformato,
+        altrimenti None.
+        """
+        if os.path.exists(self.vectorizer_file):
+            with open(self.vectorizer_file, 'rb') as f:
+                self.vectorizer = pickle.load(f)
+            logging.info(f"Vectorizer TF-IDF caricato da {self.vectorizer_file}")
+            return True
+        return False
+
+    def _transform_texts(self, texts: List[str]):
+        """
+        Applica il vettorizzatore caricato sui testi e, se richiesto, LSA.
+        """
+        X = self.vectorizer.transform(texts)
+        if self.use_lsa:
+            X = self.svd_model.transform(X)
+        return X
+
+    def cluster(
+        self,
+        user_opinions: Dict[Any, str],
+        method: str = "kmeans",
+        n_clusters: int = 20,
+        spherical: bool = False,
+        dbscan_eps: float = 0.5,
+        dbscan_min_samples: int = 5,
+        hdbscan_min_cluster_size: int = 5,
+        spectral_affinity: str = 'nearest_neighbors',
+        agglo_linkage: str = 'ward',
+        random_state: int = 42
+    ) -> Dict[Any, int]:
+        """
+        Esegue il clustering sugli argomenti dati.
+
+        Argomenti:
+        - user_opinions: dizionario {id_utente: testo_opinione}
+        - method: "kmeans", "dbscan", "hdbscan", "spectral", "agglomerative"
+        - n_clusters: numero di cluster (per metodi che lo richiedono)
+        - spherical: se True, normalizza i vettori L2 (utile per k-means su cosine)
+        - dbscan_eps, dbscan_min_samples: parametri per DBSCAN
+        - hdbscan_min_cluster_size: parametro per HDBSCAN
+        - spectral_affinity: tipo di matrice di affinità per SpectralClustering
+        - agglo_linkage: criterio di linkage per AgglomerativeClustering
+        - random_state: seme per riproducibilità
+        """
+        # Se esistono già i cluster salvati, li carico
         if os.path.exists(self.cluster_file):
-            logging.info(f"Carico i cluster da {self.cluster_file}")
-            with open(self.cluster_file, "rb") as f:
-                cluster_labels = pickle.load(f)
-            return cluster_labels
-        
-        logging.info(f"Clustering degli utenti utilizzando il metodo {method}.")
+            logging.info(f"Carico i cluster esistenti da {self.cluster_file}")
+            with open(self.cluster_file, 'rb') as f:
+                return pickle.load(f)
+
+        logging.info(f"Avvio clustering con metodo: {method}")
+        keys = list(user_opinions.keys())
         texts = list(user_opinions.values())
-        vectorizer = TfidfVectorizer(max_features=self.max_features)
-        embeddings = vectorizer.fit_transform(texts)
-        
-        if method == "kmeans":
-            model = MiniBatchKMeans(n_clusters=n_clusters, random_state=42)
-        elif method == "dbscan":
-            # Convertiamo in matrice densa e poi in array NumPy per evitare il tipo np.matrix
-            embeddings = np.asarray(embeddings.todense())
-            model = DBSCAN(metric="cosine")
+
+        # (1) Vettorizzazione / eventuale LSA
+        if not self._load_vectorizer_if_exists():
+            X = self._fit_vectorizer(texts)
         else:
-            raise ValueError(f"Metodo {method} non supportato.")
-        
-        labels = model.fit_predict(embeddings)
-        cluster_labels = dict(zip(user_opinions.keys(), labels))
-        
-        # Salva i risultati su file
-        with open(self.cluster_file, "wb") as f:
+            X = self._transform_texts(texts)
+
+        # (2) Normalizzazione L2 se spherical=True (corrisponde a “spherical K-Means”, Dhillon e Modha, 2001)
+        if spherical:
+            from sklearn.preprocessing import normalize
+            X = normalize(X, norm='l2')
+            logging.info("Dati normalizzati L2 per spherical k-means (Dhillon & Modha, 2001)")
+
+        # (3) Scelta e addestramento del modello di clustering
+        if method == "kmeans":
+            model = MiniBatchKMeans(n_clusters=n_clusters, random_state=random_state)
+        elif method == "dbscan":
+            model = DBSCAN(eps=dbscan_eps, min_samples=dbscan_min_samples, metric='cosine' if spherical else 'euclidean')
+        elif method == "hdbscan":
+            model = hdbscan.HDBSCAN(min_cluster_size=hdbscan_min_cluster_size, metric='euclidean' if not spherical else 'cosine')
+        elif method == "spectral":
+            model = SpectralClustering(
+                n_clusters=n_clusters,
+                affinity=spectral_affinity,
+                assign_labels='kmeans',
+                random_state=random_state
+            )
+        elif method == "agglomerative":
+            model = AgglomerativeClustering(
+                n_clusters=n_clusters,
+                affinity='cosine' if spherical else 'euclidean',
+                linkage=agglo_linkage
+            )
+        else:
+            raise ValueError(f"Metodo {method} non riconosciuto. Scegli tra kmeans, dbscan, hdbscan, spectral, agglomerative.")
+
+        # (4) Fit e predizione delle etichette
+        labels = model.fit_predict(X)
+        cluster_labels = dict(zip(keys, labels))
+
+        # (5) Salvo risultati su file
+        with open(self.cluster_file, 'wb') as f:
             pickle.dump(cluster_labels, f)
-        logging.info("Clustering completato e salvato.")
+        logging.info(f"Cluster salvati in {self.cluster_file}")
+
         return cluster_labels
 
-    def identify_polarizing_themes(self, user_opinions, cluster_labels):
-        logging.info("Identificazione dei temi polarizzanti.")
-        texts = list(user_opinions.values())
-        vectorizer = TfidfVectorizer(ngram_range=(1, 1), max_features=self.max_features)
-        embeddings = vectorizer.fit_transform(texts)
-        polarizing_words = []
-        labels = list(cluster_labels.values())
-        for cluster in set(labels):
-            cluster_indices = [i for i, label in enumerate(labels) if label == cluster]
-            cluster_mean = embeddings[cluster_indices].mean(axis=0).A1
-            top_features_indices = np.argsort(-cluster_mean)[:10]
-            polarizing_words.extend(
-                [vectorizer.get_feature_names_out()[i] for i in top_features_indices]
+    def identify_polarizing_themes(
+        self,
+        user_opinions: Dict[Any, str],
+        cluster_labels: Dict[Any, int],
+        top_n: int = 10,
+        ngram_range: tuple = (1, 1),
+        min_df: float = 0.0,
+        max_df: float = 1.0
+    ) -> Dict[int, List[str]]:
+        """
+        Estrae parole chiave (uni- o bi-grammi) maggiormente rappresentative di ciascun cluster.
+        Basato su TF-IDF calcolato SOLO sui testi di ogni cluster (Ramos, 2003).
+
+        Ritorna un dizionario {cluster_id: [keyword1, keyword2, ...]}.
+        """
+        logging.info("Identificazione dei temi polarizzanti per cluster.")
+
+        # Ricompongo liste in base ai cluster
+        clusters: Dict[int, List[str]] = {}
+        for uid, label in cluster_labels.items():
+            clusters.setdefault(label, []).append(user_opinions[uid])
+
+        polarizing: Dict[int, List[str]] = {}
+        for cluster_id, texts in clusters.items():
+            if cluster_id == -1:  # Se residui di DBSCAN/HDBSCAN
+                continue
+
+            # Vettorizzo SOLO i testi di questo cluster
+            vect = TfidfVectorizer(
+                max_features=self.max_features,
+                ngram_range=ngram_range,
+                stop_words=self.stop_words,
+                min_df=min_df,
+                max_df=max_df
             )
-        logging.info("Identificazione dei temi polarizzanti completata.")
-        return polarizing_words
+            Xc = vect.fit_transform(texts)
+            # Media TF-IDF per termine all’interno del cluster
+            mean_tfidf = np.asarray(Xc.mean(axis=0)).ravel()
+            top_indices = np.argsort(-mean_tfidf)[:top_n]
+            keywords = [vect.get_feature_names_out()[i] for i in top_indices]
+            polarizing[cluster_id] = keywords
+            logging.debug(f"Cluster {cluster_id}: {keywords}")
 
-    def identify_polarizing_themes_bigram(self, user_opinions, cluster_labels):
-        logging.info("Identificazione dei temi polarizzanti con bigrammi.")
-        texts = list(user_opinions.values())
-        vectorizer = TfidfVectorizer(ngram_range=(2, 2), max_features=self.max_features)
-        embeddings = vectorizer.fit_transform(texts)
-        polarizing_words = []
-        labels = list(cluster_labels.values())
-        for cluster in set(labels):
-            cluster_indices = [i for i, label in enumerate(labels) if label == cluster]
-            cluster_mean = embeddings[cluster_indices].mean(axis=0).A1
-            top_features_indices = np.argsort(-cluster_mean)[:10]
-            polarizing_words.extend(
-                [vectorizer.get_feature_names_out()[i] for i in top_features_indices]
+        logging.info("Temi polarizzanti estratti.")
+        return polarizing
+
+
+class ClusteringEmbeddings:
+    """
+    Classe per clustering basato su embedding di frasi (SBERT), con:
+    - Scelta di vari modelli (es. 'all-MiniLM-L6-v2', 'paraphrase-MPNet-base-v2', ecc.)
+    - Opzione per riduzione di dimensionalità via UMAP (McInnes et al., 2018)
+    - Supporto a K-Means, spherical K-Means, DBSCAN, HDBSCAN, Agglomerative, Spectral
+    - Estrazione di temi polarizzanti tramite identificazione di parole chiave attorno ai centri di cluster
+    """
+
+    def __init__(
+        self,
+        model_name: str = "all-MiniLM-L6-v2",
+        use_umap: bool = False,
+        umap_components: int = 50,
+        umap_metric: str = 'cosine',
+        embedding_file: str = 'sentence_embeddings.pkl',
+        cluster_file: str = 'cluster_labels_emb.pkl',
+        output_dir: str = ""
+    ):
+        """
+        Parametri:
+        - model_name: nome del modello SBERT da Sentence-Transformers (Reimers & Gurevych, 2019)
+        - use_umap: se True, riduce dimensionalità degli embedding via UMAP
+        - umap_components: numero di dimensioni target per UMAP (McInnes et al., 2018)
+        - umap_metric: metrica per UMAP ('cosine', 'euclidean', ecc.)
+        - embedding_file: percorso per salvare/ripristinare gli embeddings calcolati
+        - cluster_file: percorso per salvare/ripristinare i label dei cluster
+        - output_dir: directory di output per i file
+        """
+        self.model_name = model_name
+        self.use_umap = use_umap
+        self.umap_components = umap_components
+        self.umap_metric = umap_metric
+
+        self.embedding_file = os.path.join(output_dir, embedding_file)
+        self.cluster_file = os.path.join(output_dir, cluster_file)
+
+        # Carica il modello SBERT
+        logging.info(f"Caricamento modello SBERT: {model_name}")
+        self.model = SentenceTransformer(model_name)
+        self.umap_model: Optional[umap.UMAP] = None
+
+    def _compute_embeddings(self, texts: List[str], batch_size: int = 32) -> np.ndarray:
+        """
+        Calcola o carica da file gli embedding delle frasi tramite SBERT.
+        """
+        if os.path.exists(self.embedding_file):
+            logging.info(f"Carico embeddings da {self.embedding_file}")
+            with open(self.embedding_file, 'rb') as f:
+                return pickle.load(f)
+
+        logging.info("Calcolo nuovi embeddings SBERT.")
+        embeddings = self.model.encode(
+            texts,
+            batch_size=batch_size,
+            show_progress_bar=True,
+            convert_to_numpy=True,
+            normalize_embeddings=True  # normalizza L2 per spherical K-Means
+        )
+
+        # Salvo embeddings su file
+        with open(self.embedding_file, 'wb') as f:
+            pickle.dump(embeddings, f)
+        logging.info(f"Embeddings salvati in {self.embedding_file}")
+        return embeddings
+
+    def _reduce_dimensionality(self, embeddings: np.ndarray) -> np.ndarray:
+        """
+        Se richiesto, applica UMAP per ridurre dimensionalità.
+        """
+        if not self.use_umap:
+            return embeddings
+
+        if self.umap_model is None:
+            logging.info(f"Applico UMAP: dim originali {embeddings.shape[1]}, ridotte a {self.umap_components}")
+            self.umap_model = umap.UMAP(
+                n_components=self.umap_components,
+                metric=self.umap_metric,
+                random_state=42
             )
-        
-        unique_bigrams = set()
-        filtered_polarizing_words = []
-        for bigram in polarizing_words:
-            words = bigram.split()
-            ordered_bigram = tuple(sorted(words))
-            if ordered_bigram not in unique_bigrams and len(set(words)) > 1:
-                unique_bigrams.add(ordered_bigram)
-                filtered_polarizing_words.append(re.sub(" ", "_", bigram))
-        
-        logging.info("Identificazione dei temi polarizzanti completata.")
-        return filtered_polarizing_words
+            reduced = self.umap_model.fit_transform(embeddings)
+        else:
+            reduced = self.umap_model.transform(embeddings)
+        return reduced
 
+    def cluster(
+        self,
+        user_opinions: Dict[Any, str],
+        method: str = "kmeans",
+        n_clusters: int = 20,
+        dbscan_eps: float = 0.5,
+        dbscan_min_samples: int = 5,
+        hdbscan_min_cluster_size: int = 5,
+        spectral_affinity: str = 'nearest_neighbors',
+        agglo_linkage: str = 'average',
+        random_state: int = 42
+    ) -> Dict[Any, int]:
+        """
+        Esegue il clustering sugli embedding calcolati via SBERT.
 
-class ClusteringEmdedding:
-    def __init__(self):
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        self.model = BertModel.from_pretrained("bert-base-uncased")
+        Argomenti:
+        - user_opinions: dizionario {id_utente: testo_opinione}
+        - method: "kmeans", "dbscan", "hdbscan", "spectral", "agglomerative"
+        - n_clusters: numero di cluster (per metodi che lo richiedono)
+        - dbscan_eps, dbscan_min_samples: parametri per DBSCAN
+        - hdbscan_min_cluster_size: parametro per HDBSCAN
+        - spectral_affinity: tipo di matrice di affinità per SpectralClustering
+        - agglo_linkage: criterio di linkage per AgglomerativeClustering (Rosenberg & Hirschberg, 2007)
+        - random_state: seme per riproducibilità
+        """
+        # Se cluster già salvati, li carico
+        if os.path.exists(self.cluster_file):
+            logging.info(f"Carico cluster esistenti da {self.cluster_file}")
+            with open(self.cluster_file, 'rb') as f:
+                return pickle.load(f)
 
-    def embed_texts(self, texts, batch_size=8):
-        embeddings = []
-        for i in range(0, len(texts), batch_size):
-            batch_texts = texts[i : i + batch_size]
-            inputs = self.tokenizer(
-                batch_texts, return_tensors="pt", padding=True, truncation=True
-            )
-            with torch.no_grad():
-                outputs = self.model(**inputs)
-            batch_embeddings = outputs.last_hidden_state.mean(dim=1)
-            embeddings.append(batch_embeddings)
-        return torch.cat(embeddings, dim=0)
-
-    def cluster(self, user_opinions, method="kmeans", n_clusters=20):
-        logging.info(f"Clustering degli utenti utilizzando il metodo {method}.")
+        logging.info(f"Avvio clustering embedding con metodo: {method}")
+        keys = list(user_opinions.keys())
         texts = list(user_opinions.values())
-        embeddings = self.embed_texts(texts)
+
+        # (1) Calcolo embedding (o li carico da file)
+        embeddings = self._compute_embeddings(texts)
+
+        # (2) Eventuale riduzione di dimensionalità
+        X = self._reduce_dimensionality(embeddings)
+
+        # (3) Scelta modello di clustering
         if method == "kmeans":
-            model = KMeans(n_clusters=n_clusters)
+            model = KMeans(n_clusters=n_clusters, random_state=random_state)
         elif method == "dbscan":
-            model = DBSCAN(metric="cosine")
-        labels = model.fit_predict(embeddings)
-        logging.info("Clustering completato.")
-        return dict(zip(user_opinions.keys(), labels))
-
-    def identify_polarizing_themes(self, user_opinions, cluster_labels):
-        logging.info("Identificazione dei temi polarizzanti.")
-        texts = list(user_opinions.values())
-        embeddings = self.embed_texts(texts)
-        polarizing_words = []
-        for cluster in set(cluster_labels.values()):
-            cluster_indices = [
-                i for i, label in enumerate(cluster_labels.values()) if label == cluster
-            ]
-            cluster_mean = embeddings[cluster_indices].mean(axis=0)
-            polarizing_words.extend(
-                [self.tokenizer.decode([i]) for i in torch.argsort(-cluster_mean)[:10]]
+            model = DBSCAN(eps=dbscan_eps, min_samples=dbscan_min_samples, metric='cosine')
+        elif method == "hdbscan":
+            model = hdbscan.HDBSCAN(min_cluster_size=hdbscan_min_cluster_size, metric='euclidean')
+        elif method == "spectral":
+            model = SpectralClustering(
+                n_clusters=n_clusters,
+                affinity=spectral_affinity,
+                assign_labels='kmeans',
+                random_state=random_state
             )
-        logging.info("Identificazione dei temi polarizzanti completata.")
-        return polarizing_words
+        elif method == "agglomerative":
+            model = AgglomerativeClustering(
+                n_clusters=n_clusters,
+                affinity='cosine',
+                linkage=agglo_linkage
+            )
+        else:
+            raise ValueError(f"Metodo {method} non riconosciuto. Scegli tra kmeans, dbscan, hdbscan, spectral, agglomerative.")
+
+        labels = model.fit_predict(X)
+        cluster_labels = dict(zip(keys, labels))
+
+        # (4) Salvo risultati
+        with open(self.cluster_file, 'wb') as f:
+            pickle.dump(cluster_labels, f)
+        logging.info(f"Cluster embeddings salvati in {self.cluster_file}")
+
+        return cluster_labels
+
+    def identify_polarizing_themes(
+        self,
+        user_opinions: Dict[Any, str],
+        cluster_labels: Dict[Any, int],
+        top_n: int = 10
+    ) -> Dict[int, List[str]]:
+        """
+        Estrae parole chiave polarizzanti per ciascun cluster basandosi sui testi
+        più vicini al centroide (o medoid) del cluster e poi calcolando TF-IDF su quei testi.
+
+        Ritorna un dizionario {cluster_id: [keyword1, keyword2, ...]}.
+        """
+        logging.info("Identificazione temi polarizzanti da embedding.")
+
+        # (1) Organizzo i testi per cluster
+        clusters: Dict[int, List[str]] = {}
+        for uid, label in cluster_labels.items():
+            clusters.setdefault(label, []).append(user_opinions[uid])
+
+        polarizing: Dict[int, List[str]] = {}
+        for cluster_id, texts in clusters.items():
+            if cluster_id == -1:
+                continue
+
+            # Se il cluster è troppo piccolo, ignoro
+            if len(texts) < 2:
+                continue
+
+            # (2) Vettorizzo i testi del cluster con un TF-IDF locale
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            vect = TfidfVectorizer(
+                max_features=self.umap_components if self.use_umap else self.model.get_sentence_embedding_dimension(),
+                ngram_range=(1, 2),
+                stop_words='english',
+                min_df=1,
+                max_df=0.9
+            )
+            Xc = vect.fit_transform(texts)
+            mean_tfidf = np.asarray(Xc.mean(axis=0)).ravel()
+            top_indices = np.argsort(-mean_tfidf)[:top_n]
+            keywords = [vect.get_feature_names_out()[i] for i in top_indices]
+            polarizing[cluster_id] = keywords
+            logging.debug(f"[Embedding] Cluster {cluster_id}: {keywords}")
+
+        logging.info("Temi polarizzanti (embedding) estratti.")
+        return polarizing
