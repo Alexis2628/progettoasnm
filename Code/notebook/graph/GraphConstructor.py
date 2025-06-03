@@ -1,6 +1,6 @@
 import os
 import sys
-
+import glob
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 import json
 import networkx as nx
@@ -58,11 +58,7 @@ class GraphConstructor:
         followers_paths=[
             r"Code\data_extraction\data\processed\followers.csv",
         ],
-        data_paths=[
-            r"Code\data_extraction\data\processed\post_data\total_post1.csv",
-            r"Code\data_extraction\data\processed\post_data\total_post2.csv",
-            r"Code\data_extraction\data\processed\post_data\total_post3.csv",
-        ],
+        post_data_dir=r"Code/data_extraction/data/processed/post_data",
         info_filepath=r"Code/notebook/graph/info/graph_info.json",
         centralities_filepath=r"Code/notebook/graph/info/centralities_info.json",
     ):
@@ -79,22 +75,16 @@ class GraphConstructor:
             ]
         )
 
-        self.data = pd.concat(
-            [
-                pd.read_csv(
-                    data_paths[0],
-                    dtype=dtype_data,
-                ),
-                pd.read_csv(
-                    data_paths[1],
-                    dtype=dtype_data,
-                ),
-                pd.read_csv(
-                    data_paths[2],
-                    dtype=dtype_data,
-                ),
-            ]
-        )
+        pattern = os.path.join(post_data_dir, "*.csv")
+        all_post_files = glob.glob(pattern)
+
+        dfs = []
+        for fp in all_post_files:
+            dfs.append(pd.read_csv(fp, dtype=dtype_data))
+        if dfs:
+            self.data = pd.concat(dfs, ignore_index=True)
+        else:
+            self.data = pd.DataFrame()
 
         self.graph = nx.DiGraph()
         self.info_filepath = info_filepath

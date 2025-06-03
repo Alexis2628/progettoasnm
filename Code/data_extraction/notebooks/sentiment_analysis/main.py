@@ -48,7 +48,7 @@ def main(input_files: List[str], output_dir: Optional[str] = None):
         logger.info(f"--- Elaborazione file: {file_label} ---")
 
         # 1) Inizializza DataManager
-        dm = DataManager(input_path, output_dir=output_dir)
+        dm = DataManager(input_path, output_dir=output_dir, suffix="")
         logger.info(f"Creata istanza DataManager per '{file_label}', output previsto: '{os.path.basename(dm.output_path)}'")
 
         # 2) Carica eventuale output esistente
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         "--output_dir",
         type=str,
         required=False,
-        default=None,
+        default= "Code\\data_extraction\\data\\processed\\post_data\\",
         help="Cartella in cui salvare i file di output. Se non specificata, salva nella stessa cartella di input."
     )
     args = parser.parse_args()
