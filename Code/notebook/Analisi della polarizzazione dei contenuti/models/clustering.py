@@ -5,9 +5,9 @@ from typing import Dict, List, Any, Optional
 import numpy as np
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering, SpectralClustering,MiniBatchKMeans
 from sklearn.preprocessing import normalize
-from sentence_transformers import SentenceTransformer  # pip install sentence-transformers
-import hdbscan  # pip install hdbscan
-import umap  # pip install umap-learn
+from sentence_transformers import SentenceTransformer
+import hdbscan
+import umap
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 
@@ -31,6 +31,7 @@ class ClusteringTFIDF:
         lsa_components: int = 100,
         cluster_file: str = 'cluster_labels_tfidf.pkl',
         vectorizer_file: str = 'tfidf_vectorizer.pkl',
+        lsa_file: str = 'lsa_model.pkl',
         output_dir: str = ""
     ):
         """
@@ -43,6 +44,7 @@ class ClusteringTFIDF:
         - lsa_components: numero di componenti per la decomposizione SVD
         - cluster_file: percorso per salvare/ripristinare i label dei cluster
         - vectorizer_file: percorso per salvare/ripristinare il vettorizzatore TF-IDF
+        - lsa_file: percorso per salvare/ripristinare il modello SVD (solo se use_lsa=True)
         - output_dir: directory di output in cui salvare i file
         """
         self.max_features = max_features
@@ -56,12 +58,13 @@ class ClusteringTFIDF:
         # Percorsi completi per i file di pickle
         self.cluster_file = os.path.join(output_dir, cluster_file)
         self.vectorizer_file = os.path.join(output_dir, vectorizer_file)
+        self.lsa_file = os.path.join(output_dir, lsa_file)
 
         # Variabili interne
         self.vectorizer: Optional[TfidfVectorizer] = None
         self.svd_model: Optional[TruncatedSVD] = None
 
-    def _fit_vectorizer(self, texts: List[str]):
+    def _fit_vectorizer(self, texts: List[str]) -> np.ndarray:
         """
         Inizializza e adatta il TfidfVectorizer sui testi.
         Se use_lsa=True, salva anche il modello SVD per riduzione.
@@ -75,35 +78,61 @@ class ClusteringTFIDF:
         )
         X = self.vectorizer.fit_transform(texts)
         # Salvo il vettorizzatore per usi futuri
-        with open(self.vectorizer_file, 'wb') as f:
-            pickle.dump(self.vectorizer, f)
+        with open(self.vectorizer_file, 'wb') as f_vec:
+            pickle.dump(self.vectorizer, f_vec)
         logging.info(f"TF-IDF Vectorizer salvato in {self.vectorizer_file}")
 
         if self.use_lsa:
             # Applico LSA (TruncatedSVD) per riduzione di dimensionalità
             self.svd_model = TruncatedSVD(n_components=self.lsa_components, random_state=42)
-            X = self.svd_model.fit_transform(X)
-            logging.info(f"LSA applicata con {self.lsa_components} componenti (Deerwester et al., 1990)")
+            X_reduced = self.svd_model.fit_transform(X)
+            # Salvo il modello SVD su file
+            with open(self.lsa_file, 'wb') as f_svd:
+                pickle.dump(self.svd_model, f_svd)
+            logging.info(f"Modello LSA salvato in {self.lsa_file} con {self.lsa_components} componenti")
+            return X_reduced
+
         return X
 
-    def _load_vectorizer_if_exists(self) -> Optional[Any]:
+    def _load_vectorizer_if_exists(self) -> Optional[np.ndarray]:
         """
-        Se il file del vettorizzatore esiste, lo carica e restituisce l'output trasformato,
-        altrimenti None.
-        """
-        if os.path.exists(self.vectorizer_file):
-            with open(self.vectorizer_file, 'rb') as f:
-                self.vectorizer = pickle.load(f)
-            logging.info(f"Vectorizer TF-IDF caricato da {self.vectorizer_file}")
-            return True
-        return False
+        Se il file del vettorizzatore esiste, lo carica.  
+        Se use_lsa=True ed esiste anche il file LSA, carica anche quello.
 
-    def _transform_texts(self, texts: List[str]):
+        Ritorna True se va tutto bene (vettorizzatore caricato), False altrimenti.
+        """
+        if not os.path.exists(self.vectorizer_file):
+            return False
+
+        # Carico TF-IDF
+        with open(self.vectorizer_file, 'rb') as f_vec:
+            self.vectorizer = pickle.load(f_vec)
+        logging.info(f"Vectorizer TF-IDF caricato da {self.vectorizer_file}")
+
+        # Se sto usando LSA, provo a caricare il modello SVD
+        if self.use_lsa:
+            if os.path.exists(self.lsa_file):
+                with open(self.lsa_file, 'rb') as f_svd:
+                    self.svd_model = pickle.load(f_svd)
+                logging.info(f"Modello LSA caricato da {self.lsa_file}")
+            else:
+                # LSA non ancora calcolato, devo ricomporlo da zero
+                logging.warning(
+                    f"use_lsa=True ma {self.lsa_file} non esiste. "
+                    "Ricalcolerò SVD da zero pigliando i dati grezzi."
+                )
+                return False
+
+        return True
+
+    def _transform_texts(self, texts: List[str]) -> np.ndarray:
         """
         Applica il vettorizzatore caricato sui testi e, se richiesto, LSA.
         """
         X = self.vectorizer.transform(texts)
         if self.use_lsa:
+            # A questo punto, self.svd_model NON può più essere None perché _load_vectorizer_if_exists
+            # lo avrebbe caricato. Se fosse None, significa che dobbiamo ricrearlo ex novo.
             X = self.svd_model.transform(X)
         return X
 
@@ -137,20 +166,21 @@ class ClusteringTFIDF:
         # Se esistono già i cluster salvati, li carico
         if os.path.exists(self.cluster_file):
             logging.info(f"Carico i cluster esistenti da {self.cluster_file}")
-            with open(self.cluster_file, 'rb') as f:
-                return pickle.load(f)
+            with open(self.cluster_file, 'rb') as f_cl:
+                return pickle.load(f_cl)
 
         logging.info(f"Avvio clustering con metodo: {method}")
         keys = list(user_opinions.keys())
         texts = list(user_opinions.values())
 
         # (1) Vettorizzazione / eventuale LSA
+        # Se both vectorizer e (se use_lsa=True) SVD esistono, li carico; altrimenti li ricreo
         if not self._load_vectorizer_if_exists():
             X = self._fit_vectorizer(texts)
         else:
             X = self._transform_texts(texts)
 
-        # (2) Normalizzazione L2 se spherical=True (corrisponde a “spherical K-Means”, Dhillon e Modha, 2001)
+        # (2) Normalizzazione L2 se spherical=True (corrisponde a “spherical K-Means”, Dhillon & Modha, 2001)
         if spherical:
             from sklearn.preprocessing import normalize
             X = normalize(X, norm='l2')
@@ -162,7 +192,10 @@ class ClusteringTFIDF:
         elif method == "dbscan":
             model = DBSCAN(eps=dbscan_eps, min_samples=dbscan_min_samples, metric='cosine' if spherical else 'euclidean')
         elif method == "hdbscan":
-            model = hdbscan.HDBSCAN(min_cluster_size=hdbscan_min_cluster_size, metric='euclidean' if not spherical else 'cosine')
+            # Se stiamo usando spherical=True, i vettori sono già normalizzati, 
+            # quindi possiamo continuare a usare 'euclidean' senza perdita di coseno-proporzionalità.
+            metric_hdb = 'euclidean'
+            model = hdbscan.HDBSCAN(min_cluster_size=hdbscan_min_cluster_size, metric=metric_hdb)
         elif method == "spectral":
             model = SpectralClustering(
                 n_clusters=n_clusters,
@@ -184,8 +217,8 @@ class ClusteringTFIDF:
         cluster_labels = dict(zip(keys, labels))
 
         # (5) Salvo risultati su file
-        with open(self.cluster_file, 'wb') as f:
-            pickle.dump(cluster_labels, f)
+        with open(self.cluster_file, 'wb') as f_cl:
+            pickle.dump(cluster_labels, f_cl)
         logging.info(f"Cluster salvati in {self.cluster_file}")
 
         return cluster_labels
@@ -235,7 +268,6 @@ class ClusteringTFIDF:
 
         logging.info("Temi polarizzanti estratti.")
         return polarizing
-
 
 class ClusteringEmbeddings:
     """

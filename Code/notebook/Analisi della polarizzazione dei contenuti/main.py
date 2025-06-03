@@ -52,7 +52,7 @@ def main():
             user_opinions=user_opinions,
             method="hdbscan",
             n_clusters=10,                # solo per metodi che lo richiedono (qui ignora)
-            spherical=True,               # abilita “spherical HDBSCAN”
+            spherical=False,               # abilita “spherical HDBSCAN”
             hdbscan_min_cluster_size=10,
             random_state=42
         )

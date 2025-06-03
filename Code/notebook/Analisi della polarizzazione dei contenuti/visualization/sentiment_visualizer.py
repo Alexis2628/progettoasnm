@@ -14,14 +14,16 @@ class SentimentVisualizer:
         self.output_dir = output_dir
 
     def visualize_sentiment_distribution(self, sentiment_scores, cluster_labels):
-        violin_plot_path = f"{self.output_dir}/sentiment_violin_plot.png"
-        bar_plot_path = f"{self.output_dir}/sentiment_bar_plot.png"
+        violin_plot_path = os.path.join(self.output_dir, "sentiment_violin_plot.png")
+        bar_plot_path = os.path.join(self.output_dir, "sentiment_bar_plot.png")
 
         if os.path.exists(violin_plot_path) and os.path.exists(bar_plot_path):
             logging.info("I grafici di distribuzione del sentiment esistono già. Salto la generazione.")
             return
 
         logging.info("Visualizzazione della distribuzione del sentiment tra i cluster.")
+
+        # Costruisco il DataFrame
         data = pd.DataFrame(
             {
                 "User": list(sentiment_scores.keys()),
@@ -30,6 +32,17 @@ class SentimentVisualizer:
             }
         )
 
+        # 1) Assicurarsi che 'Cluster' sia un tipo stringa/categoria
+        #    in modo che Seaborn non tenti di usare .cat.categories su tipi non compatibili.
+        data["Cluster"] = data["Cluster"].astype(str)
+
+        # 2) Assicurarsi che 'Sentiment' sia numeric (float)
+        data["Sentiment"] = pd.to_numeric(data["Sentiment"], errors="coerce")
+
+        # Eliminare eventuali righe dove 'Sentiment' non è convertibile a float
+        data = data.dropna(subset=["Sentiment"])
+
+        # Ora genero i due grafici, se non esistono già
         if not os.path.exists(violin_plot_path):
             plt.figure(figsize=(12, 6))
             sns.violinplot(
@@ -71,40 +84,82 @@ class SentimentVisualizer:
     def visualize_sentiment_vs_themes_heatmap(
         self, sentiment_scores, user_opinions, cluster_labels
     ):
-        heatmap_path = f"{self.output_dir}/sentiment_themes_heatmap.png"
+        heatmap_path = os.path.join(self.output_dir, "sentiment_themes_heatmap.png")
 
         if os.path.exists(heatmap_path):
-            logging.info("La heatmap sentiment vs temi polarizzanti esiste già. Salto la generazione.")
+            logging.info(
+                "La heatmap sentiment vs temi polarizzanti esiste già. Salto la generazione."
+            )
             return
 
         logging.info("Creazione della heatmap tra sentiment e temi polarizzanti.")
+
+        # (1) Preparo un DataFrame temporaneo per allineare user, sentiment e testo
+        df = pd.DataFrame({
+            "User": list(user_opinions.keys()),
+            "Text": list(user_opinions.values()),
+            "Sentiment": [sentiment_scores.get(u, None) for u in user_opinions.keys()],
+        })
+
+        # (2) Convertiamo 'Sentiment' in numerico; se non è convertibile, diventa NaN
+        df["Sentiment"] = pd.to_numeric(df["Sentiment"], errors="coerce")
+
+        # (3) Scartiamo le righe in cui Sentiment è NaN
+        df_valid = df.dropna(subset=["Sentiment"])
+        if df_valid.empty:
+            logging.warning(
+                "Nessun valore di sentiment valido dopo la conversione. "
+                "Non posso creare la heatmap."
+            )
+            return
+
+        # (4) Calcolo TF-IDF solo sui testi corrispondenti a df_valid
         vectorizer = TfidfVectorizer(max_features=1000)
-        tfidf_matrix = vectorizer.fit_transform(user_opinions.values())
+        tfidf_matrix = vectorizer.fit_transform(df_valid["Text"])
         feature_names = vectorizer.get_feature_names_out()
 
-        sentiment_array = np.array(
-            [sentiment_scores[user] for user in user_opinions.keys()]
-        )
+        # (5) Creiamo un array dei sentiment validi
+        sentiment_array = df_valid["Sentiment"].to_numpy()
 
-        sentiment_to_terms_corr = np.array(
-            [
-                np.corrcoef(sentiment_array, tfidf_matrix[:, i].toarray().flatten())[0, 1]
-                for i in range(tfidf_matrix.shape[1])
-            ]
-        )
+        # (6) Per ogni termine TF-IDF calcoliamo la correlazione con il sentiment_array
+        correlations = []
+        for i in range(tfidf_matrix.shape[1]):
+            term_vector = tfidf_matrix[:, i].toarray().flatten()
+            # Se term_vector è costantemente zero, corrcoef ritorna NaN: gestiamolo
+            if np.all(term_vector == 0):
+                correlations.append(0.0)
+            else:
+                corr = np.corrcoef(sentiment_array, term_vector)[0, 1]
+                # In rari casi corr può essere NaN (ad es. varianza zero); sostituiamo con 0
+                correlations.append(0.0 if np.isnan(corr) else corr)
 
-        top_indices = np.argsort(np.abs(sentiment_to_terms_corr))[-20:]
+        correlations = np.array(correlations)
+
+        # (7) Selezioniamo i 20 termini con correlazione in valore assoluto più alta
+        top_indices = np.argsort(np.abs(correlations))[-20:]
         top_words = [feature_names[i] for i in top_indices]
-        correlations = sentiment_to_terms_corr[top_indices]
+        top_corrs = correlations[top_indices]
 
-        heatmap_data = pd.DataFrame(
-            {"Terms": top_words, "Correlation": correlations}
-        ).pivot_table(index="Terms", values="Correlation")
+        # (8) Costruiamo il DataFrame per la heatmap
+        heatmap_data = pd.DataFrame({
+            "Terms": top_words,
+            "Correlation": top_corrs
+        }).pivot_table(index="Terms", values="Correlation")
 
+        # (9) Disegniamo la heatmap
         plt.figure(figsize=(12, 8))
-        sns.heatmap(heatmap_data, annot=True, fmt=".2f", cmap="coolwarm", cbar=True)
+        sns.heatmap(
+            heatmap_data,
+            annot=True,
+            fmt=".2f",
+            cmap="coolwarm",
+            cbar=True,
+            linewidths=0.5,
+            linecolor="lightgray",
+        )
         plt.title("Relazione tra Sentiment e Temi Polarizzanti")
-        plt.savefig(heatmap_path)
+        plt.savefig(heatmap_path, bbox_inches="tight")
         plt.close()
         gc.collect()
+
         logging.info("Heatmap sentiment vs temi polarizzanti creata e salvata.")

@@ -91,8 +91,8 @@ class SentimentAnalyzer:
             score_col = "vader_compound"
             label_col = "vader_label"
         else:  # "roberta"
-            score_col = "roberta_score"
-            label_col = "roberta_label"
+            score_col = "transformer_score"
+            label_col = "transformer_label"
 
         # 1) Calcolo del punteggio medio per utente
         avg_scores = df_data.groupby("thread_user_pk")[score_col].mean()
