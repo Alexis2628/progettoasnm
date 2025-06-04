@@ -1,54 +1,5 @@
-from textblob import TextBlob
-from transformers import pipeline
-import torch
 import logging
 import pandas as pd
-
-class SentimentAnalyzer:
-    def __init__(self, method="textblob"):        
-        self.method = method
-        if self.method == "huggingface":
-            self.device = 0 if torch.cuda.is_available() else -1
-            self.pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english", device=self.device)
-
-    def analyze(self, user_opinions):
-        logging.info(f"Analisi del sentiment utilizzando il metodo {self.method}.")
-        if self.method == "textblob":
-            return {user_id: TextBlob(text).sentiment.polarity for user_id, text in user_opinions.items()}
-        elif self.method == "huggingface":
-            return self._analyze_huggingface(user_opinions)
-
-    def _analyze_huggingface(self, user_opinions):
-        results = {}
-        for user_id, text in user_opinions.items():
-            result = self.pipeline(text[:512])[0]
-            results[user_id] = result['label']
-        return results
-
-    def extract_sentiments_from_graph(self,graph_builder):
-        logging.info("Estrazione dei dati di sentiment aggregati per utente.")
-        df_data:pd.DataFrame = graph_builder.data
-        def compute_sentiment(scores, labels):
-            sentiments = []
-            for score, label in zip(scores, labels):
-                if label == "POSITIVE":
-                    sentiments.append(score)
-                elif label == "NEGATIVE":
-                    sentiments.append(1 - score)
-                else:
-                    sentiments.append(0.5)
-            return sum(sentiments) / len(sentiments) if sentiments else 0.5
-        
-        sentiment_scores = df_data.groupby("thread_user_pk", group_keys=False).apply(
-            lambda x: compute_sentiment(x["sentiment_score"], x["sentiment_label"])
-        ).to_dict()
-        
-        logging.info("Estrazione dei dati di sentiment completata.")
-        return sentiment_scores
-
-import logging
-import pandas as pd
-
 
 class SentimentAnalyzer:
     """
@@ -73,6 +24,8 @@ class SentimentAnalyzer:
           1) Il punteggio medio (average_score)
           2) L’etichetta maggioritaria (major_label)
 
+        Se il metodo è "roberta", converte LABEL_0/1/2 in NEGATIVE/NEUTRAL/POSITIVE.
+
         Restituisce un dizionario:
             {
               thread_user_pk_1: {"average_score": <float>, "major_label": <str>},
@@ -81,7 +34,7 @@ class SentimentAnalyzer:
             }
         """
         logging.info(f"Estrazione dei sentiment precomputati per utente mediante metodo '{self.method}'.")
-        df_data: pd.DataFrame = graph_builder.data
+        df_data: pd.DataFrame = graph_builder.data.copy()
 
         # Seleziono le colonne giuste in base al metodo scelto
         if self.method == "distilbert":
@@ -93,6 +46,15 @@ class SentimentAnalyzer:
         else:  # "roberta"
             score_col = "transformer_score"
             label_col = "transformer_label"
+
+            # Mappatura da LABEL_n a stringhe testuali
+            mapping_roberta = {
+                "LABEL_0": "NEGATIVE",
+                "LABEL_1": "NEUTRAL",
+                "LABEL_2": "POSITIVE"
+            }
+            # Se la colonna è ad esempio di tipo object/stringa, facciamo la conversione
+            df_data[label_col] = df_data[label_col].map(mapping_roberta).fillna(df_data[label_col])
 
         # 1) Calcolo del punteggio medio per utente
         avg_scores = df_data.groupby("thread_user_pk")[score_col].mean()

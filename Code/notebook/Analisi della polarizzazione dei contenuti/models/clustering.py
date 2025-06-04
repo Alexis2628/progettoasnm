@@ -233,24 +233,40 @@ class ClusteringTFIDF:
         max_df: float = 1.0
     ) -> Dict[int, List[str]]:
         """
-        Estrae parole chiave (uni- o bi-grammi) maggiormente rappresentative di ciascun cluster.
-        Basato su TF-IDF calcolato SOLO sui testi di ogni cluster (Ramos, 2003).
+        Estrae parole chiave (uni- o bi-grammi) maggiormente rappresentative di ciascun cluster,
+        basandosi su TF-IDF calcolato SOLO sui testi di ogni cluster.
 
-        Ritorna un dizionario {cluster_id: [keyword1, keyword2, ...]}.
+        Parametri:
+        - user_opinions:     dict[id_utente] = "testo"
+        - cluster_labels:    dict[id_utente] = cluster_id
+        - top_n:             numero di parole chiave per cluster
+        - ngram_range:       (min_n, max_n) per TF-IDF
+        - min_df, max_df:    parametri per TfidfVectorizer
         """
         logging.info("Identificazione dei temi polarizzanti per cluster.")
 
-        # Ricompongo liste in base ai cluster
+        # Ricompongo i testi di ciascun cluster
         clusters: Dict[int, List[str]] = {}
         for uid, label in cluster_labels.items():
             clusters.setdefault(label, []).append(user_opinions[uid])
 
         polarizing: Dict[int, List[str]] = {}
+
         for cluster_id, texts in clusters.items():
-            if cluster_id == -1:  # Se residui di DBSCAN/HDBSCAN
+            # Se è cluster di rumore (-1), skip
+            if cluster_id == -1:
                 continue
 
-            # Vettorizzo SOLO i testi di questo cluster
+            # Se il cluster ha meno documenti di min_df (ad es. 1 documento e min_df=2),
+            # non è possibile calcolare TF-IDF: skip
+            if len(texts) < (min_df if isinstance(min_df, int) else 1):
+                logging.warning(
+                    f"[Cluster {cluster_id}] Dimensione del cluster ({len(texts)}) "
+                    f"< min_df ({min_df}). Skipping."
+                )
+                continue
+
+            # Configuro il vettorizzatore per questo cluster
             vect = TfidfVectorizer(
                 max_features=self.max_features,
                 ngram_range=ngram_range,
@@ -258,11 +274,22 @@ class ClusteringTFIDF:
                 min_df=min_df,
                 max_df=max_df
             )
-            Xc = vect.fit_transform(texts)
-            # Media TF-IDF per termine all’interno del cluster
+            try:
+                Xc = vect.fit_transform(texts)
+            except ValueError as e:
+                # Questo errore capita quando, dopo aver applicato min_df/max_df,
+                # non resta alcuna feature: skip pure questo cluster.
+                logging.warning(
+                    f"[Cluster {cluster_id}] Errore TfidfVectorizer: {e}. "
+                    "Skippo questo cluster."
+                )
+                continue
+
+            # Calcolo la media TF-IDF per ogni termine all’interno del cluster
             mean_tfidf = np.asarray(Xc.mean(axis=0)).ravel()
             top_indices = np.argsort(-mean_tfidf)[:top_n]
             keywords = [vect.get_feature_names_out()[i] for i in top_indices]
+
             polarizing[cluster_id] = keywords
             logging.debug(f"Cluster {cluster_id}: {keywords}")
 

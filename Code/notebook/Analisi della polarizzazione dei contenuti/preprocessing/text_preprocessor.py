@@ -103,7 +103,7 @@ class TextPreprocessor:
                 processed = self.preprocess_text(text)
                 if processed:
                     cleaned.append(processed)
-            return " ".join(cleaned)
+            return "\n\n".join(cleaned)
 
         user_opinions = (
             df_data.groupby("thread_user_pk")["caption_text_translated"]
