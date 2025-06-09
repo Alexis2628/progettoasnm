@@ -266,8 +266,15 @@ Alla fine dell’esecuzione, nella directory `--output-dir` troverai:
    - Heatmap “Sentiment vs Temi”
    - Word cloud dei temi polarizzanti (unigrams e bigrams)
    - Grafico interattivo/HTML o statico di visualizzazione LDA tramite `LDAViz
-
 3. **File di log**
 
 - Vengono stampate informazioni di processo in console (livello INFO).
   - Eventuali errori vengono mostrati in console.
+
+## Run Effettuate
+
+- python main.py --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/1"
+- python main.py --use-tfidf --use-lsa --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/2"
+- python main.py --use-tfidf --method kmeans --n-clusters 15 --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/3"
+- python main.py --no-tfidf --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/4"
+- python main.py --no-tfidf --use-umap --embedding-model all-mpnet-base-v2 --use-umap --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/5"

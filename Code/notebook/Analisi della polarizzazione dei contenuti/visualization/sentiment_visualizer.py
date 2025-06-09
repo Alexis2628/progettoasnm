@@ -36,20 +36,11 @@ class SentimentVisualizer:
             "Cluster": [cluster_labels.get(user, None) for user in sentiment_by_user.keys()],
         })
 
-        # Stampa di debug per verificare che i valori siano corretti
-        print(">>> Numero di righe iniziali:", len(data))
-        print(data.head())
-        print("Conteggio per cluster (prima del cast a str):")
-        print(data["Cluster"].value_counts(dropna=False))
-
         # 3) Trasforma 'Cluster' in stringa (utile per Seaborn)
         data["Cluster"] = data["Cluster"].astype(str)
 
         # 4) 'Sentiment' è già float, quindi non serve to_numeric. Verifica comunque che non ci siano NaN
         data = data.dropna(subset=["Sentiment"])
-        print(">>> Numero di righe dopo dropna:", len(data))
-        print("Conteggio per cluster (dopo dropna):")
-        print(data["Cluster"].value_counts())
 
         if data.empty:
             logging.warning("Il DataFrame risultante è vuoto. Nessun grafico verrà generato.")
@@ -149,12 +140,6 @@ class SentimentVisualizer:
             ]
         })
 
-        # Debug: verifico quante righe ho e i NaN in 'Sentiment'
-        print(">>> Numero di righe iniziali (tutti gli utenti):", len(df))
-        print(df.head())
-        print("Conteggio valori Sentiment NaN vs validi:")
-        print(df["Sentiment"].isna().value_counts(dropna=False))
-
         # (2) Elimino eventuali righe con Sentiment = NaN
         df_valid = df.dropna(subset=["Sentiment"])
         if df_valid.empty:
@@ -163,9 +148,6 @@ class SentimentVisualizer:
                 "Non posso creare la heatmap."
             )
             return
-
-        # Debug: quanti utenti rimangono
-        print(">>> Numero di righe dopo il dropna (solo sentiment validi):", len(df_valid))
 
         # (3) Calcolo la matrice TF-IDF sui testi rimasti
         vectorizer = TfidfVectorizer(max_features=1000)

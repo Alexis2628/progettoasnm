@@ -6,7 +6,7 @@ import os
 
 class WordCloudVisualizer:
     @staticmethod
-    def visualize(polarizing_words, output_dir, prefix):
+    def visualize(polarizing_words, output_dir, prefix, font_path=None):
         """
         Genera e salva una word cloud partendo da una lista (o dizionario) di parole polarizzanti.
 
@@ -16,6 +16,7 @@ class WordCloudVisualizer:
                 - Se è un dizionario, viene considerato come {cluster_id: [parola1, parola2, ...]}.
             output_dir (str): cartella di destinazione per salvare il file immagine.
             prefix (str): stringa usata come prefisso per il nome del file (es. "TFIDF_Un" o "EMB_Bi").
+            font_path (str, optional): percorso a un file .ttf che supporti i caratteri Unicode usati.
         """
         # 1. Creo la cartella di output se non esiste
         os.makedirs(output_dir, exist_ok=True)
@@ -62,11 +63,7 @@ class WordCloudVisualizer:
             logging.info("WordCloudVisualizer: inizio creazione della word cloud.")
             text_for_cloud = " ".join(polar_list)
 
-            word_cloud = WordCloud(
-                width=800,
-                height=400,
-                background_color="white"
-            ).generate(text_for_cloud)
+            word_cloud = WordCloud(font_path=font_path if font_path else None).generate(text_for_cloud)
 
             plt.figure(figsize=(10, 6))
             plt.imshow(word_cloud, interpolation="bilinear")

@@ -476,23 +476,33 @@ class ClusteringEmbeddings:
 
         polarizing: Dict[int, List[str]] = {}
         for cluster_id, texts in clusters.items():
-            if cluster_id == -1:
+            if cluster_id == -1 or len(texts) < 2:
                 continue
-
-            # Se il cluster è troppo piccolo, ignoro
-            if len(texts) < 2:
+            
+            texts = [t for t in texts if t.strip()]
+            if not texts:
+                logging.warning(f"Cluster {cluster_id}: nessun testo valido dopo il filtro, skip.")
                 continue
-
-            # (2) Vettorizzo i testi del cluster con un TF-IDF locale
+        
+            max_feats = None
+            if self.use_umap:
+                max_feats = self.umap_components or None
+            else:
+                max_feats = getattr(self.model, 'get_sentence_embedding_dimension', lambda: None)()
+                
             from sklearn.feature_extraction.text import TfidfVectorizer
             vect = TfidfVectorizer(
-                max_features=self.umap_components if self.use_umap else self.model.get_sentence_embedding_dimension(),
+                max_features=max_feats,
                 ngram_range=(1, 2),
                 stop_words='english',
                 min_df=1,
                 max_df=0.9
             )
-            Xc = vect.fit_transform(texts)
+            try:
+                Xc = vect.fit_transform(texts)
+            except ValueError as ve:
+                logging.error(f"Cluster {cluster_id}: impossibile vettorizzare testi: {ve}")
+                continue
             mean_tfidf = np.asarray(Xc.mean(axis=0)).ravel()
             top_indices = np.argsort(-mean_tfidf)[:top_n]
             keywords = [vect.get_feature_names_out()[i] for i in top_indices]

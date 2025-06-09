@@ -217,8 +217,8 @@ def main():
             max_df=args.max_df,
             use_lsa=args.use_lsa,
             lsa_components=args.lsa_components,
-            cluster_file=os.path.join(output_dir, 'cluster_labels_tfidf.pkl'),
-            vectorizer_file=os.path.join(output_dir, 'tfidf_vectorizer.pkl'),
+            cluster_file='cluster_labels_tfidf.pkl',
+            vectorizer_file= 'tfidf_vectorizer.pkl',
             output_dir=output_dir
         )
         cluster_labels = clustering.cluster(
@@ -236,8 +236,8 @@ def main():
             model_name=args.embedding_model,
             use_umap=args.use_umap,
             umap_components=args.umap_components,
-            embedding_file=os.path.join(output_dir, 'sentence_embeddings.pkl'),
-            cluster_file=os.path.join(output_dir, 'cluster_labels_emb.pkl'),
+            embedding_file='sentence_embeddings.pkl',
+            cluster_file='cluster_labels_emb.pkl',
             output_dir=output_dir
         )
         cluster_labels = clustering.cluster(
@@ -302,7 +302,6 @@ def main():
     # WordCloud dei temi polarizzanti
     wordcloud_visualizer = WordCloudVisualizer()
     prefix = "TFIDF" if args.use_tfidf else "EMB"
-
     wordcloud_visualizer.visualize(
         flat_unigrams,
         output_dir=output_dir,
