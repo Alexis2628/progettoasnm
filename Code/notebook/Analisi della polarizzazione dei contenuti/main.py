@@ -283,11 +283,25 @@ def main():
             max_df=args.polar_max_df,
         )
     else:
-        logging.info("Identificazione dei temi polarizzanti (Embeddings).")
+        logging.info("Identificazione dei temi polarizzanti (Embeddings unigrams).")
         polarizing_dict = clustering.identify_polarizing_themes(
-            user_opinions, cluster_labels, top_n=args.top_n
+            user_opinions,
+            cluster_labels,
+            top_n=args.top_n,
+            ngram_range=(1,1),
+            min_df=args.polar_min_df,
+            max_df=args.polar_max_df
         )
-        polarizing_bigrams_dict = polarizing_dict
+
+        logging.info("Identificazione dei temi polarizzanti (Embeddings bigrams).")
+        polarizing_bigrams_dict = clustering.identify_polarizing_themes(
+            user_opinions,
+            cluster_labels,
+            top_n=args.top_n,
+            ngram_range=(2,2),
+            min_df=args.polar_min_df,
+            max_df=args.polar_max_df
+        )
 
     # Funzione di utilità per appiattire le liste di keyword
     def _flatten_keywords(polar_dict):

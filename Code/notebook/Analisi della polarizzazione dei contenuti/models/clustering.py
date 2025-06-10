@@ -459,15 +459,17 @@ class ClusteringEmbeddings:
         self,
         user_opinions: Dict[Any, str],
         cluster_labels: Dict[Any, int],
-        top_n: int = 10
+        top_n: int = 10,
+        ngram_range: tuple = (1,1),       # ora parametrizzato
+        min_df: int = 1,
+        max_df: float = 0.9
     ) -> Dict[int, List[str]]:
         """
         Estrae parole chiave polarizzanti per ciascun cluster basandosi sui testi
         più vicini al centroide (o medoid) del cluster e poi calcolando TF-IDF su quei testi.
-
-        Ritorna un dizionario {cluster_id: [keyword1, keyword2, ...]}.
+        Ora con ngram_range parametrico per distinguere unigrams e bigrams.
         """
-        logging.info("Identificazione temi polarizzanti da embedding.")
+        logging.info(f"Identificazione temi polarizzanti da embedding, ngram_range={ngram_range!r}.")
 
         # (1) Organizzo i testi per cluster
         clusters: Dict[int, List[str]] = {}
@@ -476,38 +478,36 @@ class ClusteringEmbeddings:
 
         polarizing: Dict[int, List[str]] = {}
         for cluster_id, texts in clusters.items():
-            if cluster_id == -1 or len(texts) < 2:
+            if cluster_id == -1 or len(texts) < min_df:
                 continue
-            
+
+            # filtro testi vuoti
             texts = [t for t in texts if t.strip()]
             if not texts:
-                logging.warning(f"Cluster {cluster_id}: nessun testo valido dopo il filtro, skip.")
+                logging.warning(f"Cluster {cluster_id}: nessun testo valido, skip.")
                 continue
-        
-            max_feats = None
-            if self.use_umap:
-                max_feats = self.umap_components or None
-            else:
-                max_feats = getattr(self.model, 'get_sentence_embedding_dimension', lambda: None)()
-                
+
+            # preparo il vettorizzatore con il ngram_range richiesto
             from sklearn.feature_extraction.text import TfidfVectorizer
             vect = TfidfVectorizer(
-                max_features=max_feats,
-                ngram_range=(1, 2),
+                max_features=None,
+                ngram_range=ngram_range,
                 stop_words='english',
-                min_df=1,
-                max_df=0.9
+                min_df=min_df,
+                max_df=max_df
             )
             try:
                 Xc = vect.fit_transform(texts)
-            except ValueError as ve:
-                logging.error(f"Cluster {cluster_id}: impossibile vettorizzare testi: {ve}")
+            except ValueError as e:
+                logging.warning(f"Cluster {cluster_id}: impossibile vettorizzare testi: {e}. Skip.")
                 continue
+
             mean_tfidf = np.asarray(Xc.mean(axis=0)).ravel()
             top_indices = np.argsort(-mean_tfidf)[:top_n]
             keywords = [vect.get_feature_names_out()[i] for i in top_indices]
+
             polarizing[cluster_id] = keywords
-            logging.debug(f"[Embedding] Cluster {cluster_id}: {keywords}")
+            logging.debug(f"[Embeddings] Cluster {cluster_id}, {ngram_range}: {keywords}")
 
         logging.info("Temi polarizzanti (embedding) estratti.")
         return polarizing
