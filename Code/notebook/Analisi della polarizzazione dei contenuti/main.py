@@ -28,7 +28,7 @@ def parse_args():
         "--output-dir",
         type=str,
         default=r"Code/notebook/Analisi della polarizzazione dei contenuti/output",
-        help="Cartella in cui salvare tutti i risultati."
+        help="Cartella in cui salvare tutti i risultati.",
     )
 
     # Scelta tra TF-IDF o Embeddings
@@ -37,13 +37,13 @@ def parse_args():
         "--use-tfidf",
         dest="use_tfidf",
         action="store_true",
-        help="Usa ClusteringTFIDF (default)."
+        help="Usa ClusteringTFIDF (default).",
     )
     tfidf_group.add_argument(
         "--no-tfidf",
         dest="use_tfidf",
         action="store_false",
-        help="Usa ClusteringEmbeddings."
+        help="Usa ClusteringEmbeddings.",
     )
     parser.set_defaults(use_tfidf=True)
 
@@ -52,42 +52,39 @@ def parse_args():
         "--max-features",
         type=int,
         default=5000,
-        help="Numero massimo di feature per il vettorizzatore TF-IDF."
+        help="Numero massimo di feature per il vettorizzatore TF-IDF.",
     )
     parser.add_argument(
         "--ngram-range",
         type=str,
         default="(1,2)",
-        help="Range di n-grammi per TF-IDF, specificato come tuple, es. \"(1,2)\"."
+        help='Range di n-grammi per TF-IDF, specificato come tuple, es. "(1,2)".',
     )
     parser.add_argument(
         "--stop-words",
         type=str,
         default="english",
-        help="Lingua per stop_words del TF-IDF (es. 'english') o None."
+        help="Lingua per stop_words del TF-IDF (es. 'english') o None.",
     )
     parser.add_argument(
         "--min-df",
         type=float,
         default=0.01,
-        help="min_df per il vettorizzatore TF-IDF."
+        help="min_df per il vettorizzatore TF-IDF.",
     )
     parser.add_argument(
-        "--max-df",
-        type=float,
-        default=0.8,
-        help="max_df per il vettorizzatore TF-IDF."
+        "--max-df", type=float, default=0.8, help="max_df per il vettorizzatore TF-IDF."
     )
     parser.add_argument(
         "--lsa-components",
         type=int,
         default=200,
-        help="Numero di componenti LSA se use_lsa=True."
+        help="Numero di componenti LSA se use_lsa=True.",
     )
     parser.add_argument(
         "--use-lsa",
         action="store_true",
-        help="Se specificato, abilitare LSA nel pipeline TF-IDF."
+        help="Se specificato, abilitare LSA nel pipeline TF-IDF.",
     )
 
     # Parametri per ClusteringEmbeddings
@@ -95,18 +92,18 @@ def parse_args():
         "--embedding-model",
         type=str,
         default="all-MiniLM-L6-v2",
-        help="Nome del modello SBERT da usare (solo per ClusteringEmbeddings)."
+        help="Nome del modello SBERT da usare (solo per ClusteringEmbeddings).",
     )
     parser.add_argument(
         "--use-umap",
         action="store_true",
-        help="Se specificato, ridurre dimensionalità con UMAP (solo per ClusteringEmbeddings)."
+        help="Se specificato, ridurre dimensionalità con UMAP (solo per ClusteringEmbeddings).",
     )
     parser.add_argument(
         "--umap-components",
         type=int,
         default=50,
-        help="Numero di componenti UMAP (solo per ClusteringEmbeddings)."
+        help="Numero di componenti UMAP (solo per ClusteringEmbeddings).",
     )
 
     # Parametri comuni di clustering
@@ -115,25 +112,25 @@ def parse_args():
         type=str,
         default="hdbscan",
         choices=["hdbscan", "kmeans"],
-        help="Metodo di clustering da usare (HDBSCAN o KMeans)."
+        help="Metodo di clustering da usare (HDBSCAN o KMeans).",
     )
     parser.add_argument(
         "--n-clusters",
         type=int,
         default=10,
-        help="Numero di cluster target (usato da HDBSCAN come suggerimento o da KMeans)."
+        help="Numero di cluster target (usato da HDBSCAN come suggerimento o da KMeans).",
     )
     parser.add_argument(
         "--hdbscan-min-cluster-size",
         type=int,
         default=10,
-        help="Minimo numero di elementi in un cluster, se si usa HDBSCAN."
+        help="Minimo numero di elementi in un cluster, se si usa HDBSCAN.",
     )
     parser.add_argument(
         "--random-state",
         type=int,
         default=42,
-        help="Random seed da passare ai metodi di clustering."
+        help="Random seed da passare ai metodi di clustering.",
     )
 
     # Identificazione temi polarizzanti (solo TF-IDF)
@@ -141,31 +138,31 @@ def parse_args():
         "--top-n",
         type=int,
         default=15,
-        help="Numero di parole chiave per tema polarizzante da estrarre (TF-IDF)."
+        help="Numero di parole chiave per tema polarizzante da estrarre (TF-IDF).",
     )
     parser.add_argument(
         "--polar-ngram-range-unigrams",
         type=str,
         default="(1,1)",
-        help="ngram_range per unigrams polarizzanti, es. \"(1,1)\"."
+        help='ngram_range per unigrams polarizzanti, es. "(1,1)".',
     )
     parser.add_argument(
         "--polar-ngram-range-bigrams",
         type=str,
         default="(2,2)",
-        help="ngram_range per bigrams polarizzanti, es. \"(2,2)\"."
+        help='ngram_range per bigrams polarizzanti, es. "(2,2)".',
     )
     parser.add_argument(
         "--polar-min-df",
         type=int,
         default=2,
-        help="min_df per estrarre temi polarizzanti (TF-IDF)."
+        help="min_df per estrarre temi polarizzanti (TF-IDF).",
     )
     parser.add_argument(
         "--polar-max-df",
         type=float,
         default=0.7,
-        help="max_df per estrarre temi polarizzanti (TF-IDF)."
+        help="max_df per estrarre temi polarizzanti (TF-IDF).",
     )
 
     return parser.parse_args()
@@ -217,9 +214,9 @@ def main():
             max_df=args.max_df,
             use_lsa=args.use_lsa,
             lsa_components=args.lsa_components,
-            cluster_file='cluster_labels_tfidf.pkl',
-            vectorizer_file= 'tfidf_vectorizer.pkl',
-            output_dir=output_dir
+            cluster_file="cluster_labels_tfidf.pkl",
+            vectorizer_file="tfidf_vectorizer.pkl",
+            output_dir=output_dir,
         )
         cluster_labels = clustering.cluster(
             user_opinions=user_opinions,
@@ -227,7 +224,7 @@ def main():
             n_clusters=args.n_clusters,
             spherical=False,
             hdbscan_min_cluster_size=args.hdbscan_min_cluster_size,
-            random_state=args.random_state
+            random_state=args.random_state,
         )
     else:
         logging.info("Utilizzo ClusteringEmbeddings (SBERT + UMAP + Clustering).")
@@ -236,19 +233,21 @@ def main():
             model_name=args.embedding_model,
             use_umap=args.use_umap,
             umap_components=args.umap_components,
-            embedding_file='sentence_embeddings.pkl',
-            cluster_file='cluster_labels_emb.pkl',
-            output_dir=output_dir
+            embedding_file="sentence_embeddings.pkl",
+            cluster_file="cluster_labels_emb.pkl",
+            output_dir=output_dir,
         )
         cluster_labels = clustering.cluster(
             user_opinions=user_opinions,
             method=args.method,
             n_clusters=args.n_clusters,
-            random_state=args.random_state
+            random_state=args.random_state,
         )
 
     num_cluster_detected = len(set(cluster_labels.values()))
-    logging.info(f"Cluster ottenuti: {num_cluster_detected} distinti (incluso -1 per rumore, se presente).")
+    logging.info(
+        f"Cluster ottenuti: {num_cluster_detected} distinti (incluso -1 per rumore, se presente)."
+    )
 
     # Visualizzazione dei cluster
     cluster_visualizer = ClusterVisualizer(output_dir=output_dir)
@@ -267,25 +266,26 @@ def main():
     if args.use_tfidf:
         logging.info("Identificazione dei temi polarizzanti (unigrams).")
         polarizing_dict = clustering.identify_polarizing_themes(
-            user_opinions, cluster_labels,
+            user_opinions,
+            cluster_labels,
             top_n=args.top_n,
             ngram_range=polar_unigram_range,
             min_df=args.polar_min_df,
-            max_df=args.polar_max_df
+            max_df=args.polar_max_df,
         )
         logging.info("Identificazione dei temi polarizzanti (bigrams).")
         polarizing_bigrams_dict = clustering.identify_polarizing_themes(
-            user_opinions, cluster_labels,
+            user_opinions,
+            cluster_labels,
             top_n=args.top_n,
             ngram_range=polar_bigram_range,
             min_df=args.polar_min_df,
-            max_df=args.polar_max_df
+            max_df=args.polar_max_df,
         )
     else:
         logging.info("Identificazione dei temi polarizzanti (Embeddings).")
         polarizing_dict = clustering.identify_polarizing_themes(
-            user_opinions, cluster_labels,
-            top_n=args.top_n
+            user_opinions, cluster_labels, top_n=args.top_n
         )
         polarizing_bigrams_dict = polarizing_dict
 
@@ -303,22 +303,19 @@ def main():
     wordcloud_visualizer = WordCloudVisualizer()
     prefix = "TFIDF" if args.use_tfidf else "EMB"
     wordcloud_visualizer.visualize(
-        flat_unigrams,
-        output_dir=output_dir,
-        prefix=f"{prefix}_Un"
+        flat_unigrams, output_dir=output_dir, prefix=f"{prefix}_Un"
     )
     wordcloud_visualizer.visualize(
-        flat_bigrams,
-        output_dir=output_dir,
-        prefix=f"{prefix}_Bi"
+        flat_bigrams, output_dir=output_dir, prefix=f"{prefix}_Bi"
     )
 
     # Topic modeling con LDA: uso il numero di cluster (escludendo -1 per rumore)
-    num_clusters_effective = len({label for label in cluster_labels.values() if label != -1})
+    num_clusters_effective = len(
+        {label for label in cluster_labels.values() if label != -1}
+    )
     topic_modeling = TopicModeling()
     lda_model, dictionary, corpus = topic_modeling.perform_topic_modeling(
-        user_opinions,
-        n_topics=num_clusters_effective
+        user_opinions, n_topics=num_clusters_effective
     )
 
     # Visualizzazione LDA

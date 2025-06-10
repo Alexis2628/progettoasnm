@@ -273,8 +273,8 @@ Alla fine dell’esecuzione, nella directory `--output-dir` troverai:
 
 ## Run Effettuate
 
-- python main.py --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/1"
-- python main.py --use-tfidf --use-lsa --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/2"
-- python main.py --use-tfidf --method kmeans --n-clusters 15 --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/3"
-- python main.py --no-tfidf --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/4"
-- python main.py --no-tfidf --use-umap --embedding-model all-mpnet-base-v2 --use-umap --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/5"
+- & c:/Users/pasqu/Desktop/progettoasnm/.venv/Scripts/python.exe "c:/Users/pasqu/Desktop/progettoasnm/Code/notebook/Analisi della polarizzazione dei contenuti/main.py" --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/1"
+- & c:/Users/pasqu/Desktop/progettoasnm/.venv/Scripts/python.exe "c:/Users/pasqu/Desktop/progettoasnm/Code/notebook/Analisi della polarizzazione dei contenuti/main.py" --use-tfidf --use-lsa --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/2"
+- & c:/Users/pasqu/Desktop/progettoasnm/.venv/Scripts/python.exe "c:/Users/pasqu/Desktop/progettoasnm/Code/notebook/Analisi della polarizzazione dei contenuti/main.py" --use-tfidf --method kmeans --n-clusters 15 --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/3"
+- & c:/Users/pasqu/Desktop/progettoasnm/.venv/Scripts/python.exe "c:/Users/pasqu/Desktop/progettoasnm/Code/notebook/Analisi della polarizzazione dei contenuti/main.py" --no-tfidf --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/4"
+- & c:/Users/pasqu/Desktop/progettoasnm/.venv/Scripts/python.exe "c:/Users/pasqu/Desktop/progettoasnm/Code/notebook/Analisi della polarizzazione dei contenuti/main.py" --no-tfidf --use-umap --embedding-model all-mpnet-base-v2 --use-umap --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/5"
