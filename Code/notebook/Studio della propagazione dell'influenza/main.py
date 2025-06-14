@@ -89,7 +89,9 @@ if __name__ == "__main__":
         logger.info("Optimization completed successfully.")
         run_models_on_differnt_optimizer(optimization_results, gc, save_fig, steps)
         if save_to_file:
-            output_dir = r"Code\notebook\Studio della propagazione dell'influenza\output/optimizer_output"
+            output_dir = os.path.join(
+                os.path.dirname(__file__), "output", "optimizer_output"
+            )
             logger.info("Saving optimization results to directory: %s", output_dir)
             save_results_to_file(optimization_results, os.path.join(output_dir, "save"))
             logger.info("Results saved successfully.")
