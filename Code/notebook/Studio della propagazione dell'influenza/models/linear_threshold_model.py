@@ -20,6 +20,21 @@
 
 import random
 def linear_threshold_model(graph, seed_nodes):
+    """Esegue il modello Linear Threshold su ``graph``.
+
+    Parameters
+    ----------
+    graph : networkx.DiGraph
+        Grafo su cui simulare la diffusione.
+    seed_nodes : iterable
+        Nodi inizialmente attivi.
+
+    Returns
+    -------
+    dict
+        Dizionario step -> insieme di nodi attivi.
+    """
+
     activated = set(seed_nodes)
     newly_activated = set(seed_nodes)
     

@@ -5,6 +5,21 @@ def ldag(graph, k, p=0.1, threshold=0.5):
     """Algoritmo LDAG: Local DAG-based propagation"""
 
     def build_local_dag(node, threshold):
+        """Crea il DAG locale partendo da ``node``.
+
+        Parameters
+        ----------
+        node : hashable
+            Nodo di partenza per l'esplorazione.
+        threshold : float
+            Probabilità di seguire un arco nella costruzione.
+
+        Returns
+        -------
+        networkx.DiGraph
+            Sottografo orientato che rappresenta la porzione locale esplorata.
+        """
+
         local_dag = nx.DiGraph()
         visited = set([node])
         queue = [node]

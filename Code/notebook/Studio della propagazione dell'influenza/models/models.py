@@ -104,6 +104,14 @@ class Models:
 
 
     def print_result(self,model_results):
+        """Stampa un riepilogo dei risultati dei modelli.
+
+        Parameters
+        ----------
+        model_results : dict
+            Dizionario nome_modello -> output prodotto.
+        """
+
         # Stampa dei risultati dei modelli
         print("Risultati dei modelli (ultima iterazione):")
         for model_name, result in model_results.items():

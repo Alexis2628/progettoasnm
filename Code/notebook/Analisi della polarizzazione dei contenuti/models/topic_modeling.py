@@ -5,6 +5,7 @@ from gensim.models.ldamodel import LdaModel
 class TopicModeling:
     @staticmethod
     def perform_topic_modeling(user_opinions, n_topics=5):
+        """Esegue LDA restituendo modello, dizionario e corpus."""
         logging.info("Esecuzione del topic modeling con LDA.")
         texts = [opinion.split() for opinion in user_opinions.values()]
         dictionary = Dictionary(texts)

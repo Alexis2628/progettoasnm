@@ -19,6 +19,7 @@ from models.topic_modeling import TopicModeling
 
 
 def parse_args():
+    """Parsa gli argomenti da linea di comando."""
     parser = argparse.ArgumentParser(
         description="Analisi della polarizzazione dei contenuti (configurabile via CLI)."
     )
@@ -169,6 +170,7 @@ def parse_args():
 
 
 def main():
+    """Esegue l'analisi completa sui dati."""
     args = parse_args()
 
     # Configurazione del logging
@@ -305,6 +307,7 @@ def main():
 
     # Funzione di utilità per appiattire le liste di keyword
     def _flatten_keywords(polar_dict):
+        """Restituisce una lista unica di keyword."""
         all_kw = set()
         for kw_list in polar_dict.values():
             all_kw.update(kw_list)

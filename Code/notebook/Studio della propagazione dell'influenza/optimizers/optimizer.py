@@ -127,7 +127,14 @@ class Optimizer:
         return results
 
     def print_results(self, optimization_results):
-        # Stampa dei risultati degli algoritmi di ottimizzazione
+        """Stampa a console i risultati degli algoritmi.
+
+        Parameters
+        ----------
+        optimization_results : dict
+            Mappatura nome_algoritmo -> risultato ottenuto.
+        """
+
         print("\nRisultati degli algoritmi di ottimizzazione:")
         for algo_name, result in optimization_results.items():
             print(f"{algo_name}: {result}")

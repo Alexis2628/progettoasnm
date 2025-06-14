@@ -5,6 +5,14 @@ def tim_plus(graph, k, p=0.1, rr_sets=100):
     """TIM+: Reverse Reachable Set Sampling"""
 
     def generate_rr_set():
+        """Genera un Reverse Reachable set casuale.
+
+        Returns
+        -------
+        set
+            Insieme di nodi raggiungibili in modo inverso dal nodo scelto.
+        """
+
         node = random.choice(list(graph.nodes()))
         rr_set = set([node])
         queue = [node]

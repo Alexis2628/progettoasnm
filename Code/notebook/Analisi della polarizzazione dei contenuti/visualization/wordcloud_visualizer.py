@@ -8,6 +8,7 @@ import re
 class WordCloudVisualizer:
     @staticmethod
     def visualize(polarizing_words, output_dir, prefix, font_path=None):
+        """Crea e salva una word cloud delle parole polarizzanti."""
         os.makedirs(output_dir, exist_ok=True)
 
         if isinstance(polarizing_words, dict):

@@ -2,6 +2,21 @@ def simpath(graph, k, p=0.1, path_limit=3):
     """Algoritmo SIMPATH basato sui percorsi influenti"""
 
     def compute_path_influence(node, path_limit):
+        """Calcola l'influenza di ``node`` limitando la profondità dei percorsi.
+
+        Parameters
+        ----------
+        node : hashable
+            Nodo da cui parte l'esplorazione.
+        path_limit : int
+            Massima lunghezza dei percorsi considerati.
+
+        Returns
+        -------
+        int
+            Numero di nodi raggiunti entro ``path_limit`` passi.
+        """
+
         visited = set()
         stack = [(node, 0)]
         influence = 0

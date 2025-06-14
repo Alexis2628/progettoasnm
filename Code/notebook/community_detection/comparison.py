@@ -21,21 +21,21 @@ class Comparator:
     """
 
     def __init__(self, graph: nx.Graph, partitions: dict, out_dir: str):
+        """Inizializza il comparatore con i dati necessari."""
+
         self.graph = graph
         self.partitions = partitions
         self.out_dir = out_dir
         os.makedirs(self.out_dir, exist_ok=True)
 
     def compute_metrics(self) -> pd.DataFrame:
-        """
-        Calcola metriche di qualità per ciascuna partizione:
-        - numero di comunità
-        - modularity
-        - coverage
-        - performance
+        """Calcola metriche di qualità per ciascuna partizione.
 
-        Restituisce un DataFrame con colonne:
-        [method, num_communities, modularity, coverage, performance]
+        Returns
+        -------
+        pandas.DataFrame
+            Tabella con colonne ``method``, ``num_communities``, ``modularity``,
+            ``coverage`` e ``performance``.
         """
         data = {
             "method": [],
@@ -67,9 +67,12 @@ class Comparator:
         return df
 
     def plot_metrics(self, df_metrics: pd.DataFrame):
-        """
-        Genera grafici a barre per ciascuna metrica.
-        Salva i PNG in out_dir.
+        """Disegna grafici a barre per ogni metrica.
+
+        Parameters
+        ----------
+        df_metrics : pandas.DataFrame
+            Output di :meth:`compute_metrics`.
         """
         for col in ["num_communities", "modularity", "coverage", "performance"]:
             plt.figure()
@@ -83,10 +86,7 @@ class Comparator:
             plt.close()
 
     def plot_nmi_heatmap(self):
-        """
-        Calcola e disegna la heatmap dei punteggi NMI fra tutte le partizioni.
-        Salva il PNG in out_dir.
-        """
+        """Visualizza la heatmap delle similarità (NMI) tra le partizioni."""
         names = list(self.partitions.keys())
         n = len(names)
         nmi_mat = [[0.0] * n for _ in range(n)]
