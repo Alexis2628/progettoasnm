@@ -28,7 +28,9 @@ def parse_args():
     parser.add_argument(
         "--output-dir",
         type=str,
-        default=r"Code/notebook/Analisi della polarizzazione dei contenuti/output",
+        default=os.path.join(
+            os.path.dirname(__file__), "output"
+        ),
         help="Cartella in cui salvare tutti i risultati.",
     )
 

@@ -68,12 +68,10 @@ def hits_scores(graph):
 class GraphConstructor:
     def __init__(
         self,
-        followers_paths=[
-            r"Code\data_extraction\data\processed\followers.csv",
-        ],
-        post_data_dir=r"Code/data_extraction/data/processed/post_data",
-        info_filepath=r"Code/notebook/graph/info/graph_info.json",
-        centralities_filepath=r"Code/notebook/graph/info/centralities_info.json",
+        followers_paths=None,
+        post_data_dir=None,
+        info_filepath=None,
+        centralities_filepath=None,
     ):
         """Inizializza la struttura e carica i dati di input.
 
@@ -88,6 +86,18 @@ class GraphConstructor:
         centralities_filepath : str, optional
             Percorso del file JSON per le centralità.
         """
+
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+        if followers_paths is None:
+            followers_paths = [
+                os.path.join(project_root, "Code", "data_extraction", "data", "processed", "followers.csv")
+            ]
+        if post_data_dir is None:
+            post_data_dir = os.path.join(project_root, "Code", "data_extraction", "data", "processed", "post_data")
+        if info_filepath is None:
+            info_filepath = os.path.join(os.path.dirname(__file__), "info", "graph_info.json")
+        if centralities_filepath is None:
+            centralities_filepath = os.path.join(os.path.dirname(__file__), "info", "centralities_info.json")
 
         self.df = pd.concat(
             [

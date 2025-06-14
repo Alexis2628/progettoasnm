@@ -33,7 +33,9 @@ def run_models_on_different_seed_lengths(
     """
     graph = graph_builder.graph
     all_results = {}
-    output_dir = r"Code\notebook\Studio della propagazione dell'influenza\output/"+output
+    output_dir = os.path.join(
+        os.path.dirname(__file__), "..", "output", output
+    )
     for seed_length in seed_lengths:
         seed_nodes = [node for node, _ in top_influencers[:seed_length]]
     # Esecuzione dei modelli
@@ -52,10 +54,16 @@ def run_models_on_different_seed_lengths(
         )
         all_results[seed_length] = model_results
         if save_to_file:
-            save_results_to_file(model_results, os.path.join(output_dir+"/save", f"steps_{seed_length}"))
+            save_results_to_file(
+                model_results, os.path.join(output_dir, "save", f"steps_{seed_length}")
+            )
     if save_fig:
         plotter = Plotter()
-        plotter.plot_all_results(all_results, seed_lengths,output_dir+"/plot_comparative_seed_length")
+        plotter.plot_all_results(
+            all_results,
+            seed_lengths,
+            os.path.join(output_dir, "plot_comparative_seed_length"),
+        )
 
 
 def run_models_on_differnt_centralities(
@@ -90,7 +98,9 @@ def run_models_on_differnt_centralities(
                           "PageRank", "Katz Centrality","Eigenvector Centrality","HITS Hub Scores","HITS Authority Scores"]
     graph = graph_builder.graph
     seed_nodes_by_centrality = {}
-    output_dir = r"Code\notebook\Studio della propagazione dell'influenza\output/"+output
+    output_dir = os.path.join(
+        os.path.dirname(__file__), "..", "output", output
+    )
     for metric in centrality_metrics:
         sorted_nodes = sorted(centralities[metric].items(), key=lambda x: x[1], reverse=True)
         seed_nodes_by_centrality[metric] = [node for node, _ in sorted_nodes[:seed_length]]
@@ -113,11 +123,18 @@ def run_models_on_differnt_centralities(
             all_results_by_centrality[metric] = model_results
 
         if save_to_file:
-            save_results_to_file(model_results, os.path.join(output_dir + "/save", f"{metric}_steps_{seed_length}"))
+            save_results_to_file(
+                model_results, os.path.join(output_dir, "save", f"{metric}_steps_{seed_length}")
+            )
 
     if save_fig:
         plotter = Plotter()
-        plotter.plot_all_results(all_results_by_centrality, centrality_metrics,output_dir + "/plot_centrality_comparison",use_centrality_labels=True)
+        plotter.plot_all_results(
+            all_results_by_centrality,
+            centrality_metrics,
+            os.path.join(output_dir, "plot_centrality_comparison"),
+            use_centrality_labels=True,
+        )
 
 def run_models_on_differnt_optimizer(
     optimization_results,
@@ -144,7 +161,9 @@ def run_models_on_differnt_optimizer(
     graph = graph_builder.graph
  
     all_res = {}
-    output_dir = r"Code\notebook\Studio della propagazione dell'influenza\output/optimizer_output"
+    output_dir = os.path.join(
+        os.path.dirname(__file__), "..", "output", "optimizer_output"
+    )
     for method in optmizer_methods:
         seed_nodes = list(optimization_results[method])
         all_results_by_centrality = {}
@@ -173,4 +192,8 @@ def run_models_on_differnt_optimizer(
 
     if save_fig:
         plotter = Plotter()
-        plotter.plot_all_optimizer(dizionario_invertito, output_dir + "/plot_optimizer_comparison",save = True)
+        plotter.plot_all_optimizer(
+            dizionario_invertito,
+            os.path.join(output_dir, "plot_optimizer_comparison"),
+            save=True,
+        )
