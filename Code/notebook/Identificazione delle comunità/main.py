@@ -27,7 +27,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 from comparison import Comparator
 from utils.logger import setup_logger
 from Code.notebook.graph.GraphConstructor import GraphConstructor
-from Code.notebook.community_detection.utils.cluster_helper import (
+from utils.cluster_helper import (
     build_clusters_from_partition,
     compute_cluster_connections,
     compute_cluster_stats,
