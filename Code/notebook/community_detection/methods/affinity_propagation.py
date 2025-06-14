@@ -1,6 +1,6 @@
 import networkx as nx
 from sklearn.cluster import AffinityPropagation
-from scipy.sparse import csr_matrix
+import numpy as np
 
 
 def affinity_propagation_clustering(
@@ -20,8 +20,7 @@ def affinity_propagation_clustering(
     labels : dict
         Mappa nodo->cluster (int).
     """
-    #A: csr_matrix = nx.adjacency_matrix(graph)
-    X = nx.to_numpy_array(graph)
+    X = nx.to_numpy_array(graph, dtype=np.float32)
     ap = AffinityPropagation(
         damping=damping,
         preference=preference,
