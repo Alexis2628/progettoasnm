@@ -3,6 +3,16 @@ import json
 import logging
 
 def save_results_to_file(model_results, output_dir):
+    """Salva su file i risultati dei modelli.
+
+    Parameters
+    ----------
+    model_results : dict
+        Mappatura nome_modello -> risultato.
+    output_dir : str
+        Cartella di destinazione.
+    """
+
     os.makedirs(output_dir, exist_ok=True)
     for model_name, result in model_results.items():
         print("model_name: ", model_name)
@@ -24,7 +34,18 @@ def save_results_to_file(model_results, output_dir):
         logging.info(f"Risultati salvati correttamente in {model_name}")
 
 def convert_sets_in_dict(d):
-    # Funzione ricorsiva per convertire tutti i set in liste nel dizionario
+    """Converte ricorsivamente i ``set`` in ``list`` dentro un dict.
+
+    Parameters
+    ----------
+    d : dict
+        Dizionario potenzialmente contenente set.
+
+    Returns
+    -------
+    dict
+        Dizionario con i set convertiti in liste.
+    """
     for key, value in d.items():
         if isinstance(value, set):
             d[key] = list(value)
@@ -35,9 +56,39 @@ def convert_sets_in_dict(d):
     return d
 
 def convert_sets_in_tuple(t):
-    # Funzione per convertire i set in liste dentro una tupla
-    return tuple(convert_sets_in_list(item) if isinstance(item, (set, tuple)) else item for item in t)
+    """Converte eventuali ``set`` presenti in una tupla in ``list``.
+
+    Parameters
+    ----------
+    t : tuple
+        Tupla che può contenere set.
+
+    Returns
+    -------
+    tuple
+        Nuova tupla con i set convertiti in liste.
+    """
+
+    return tuple(
+        convert_sets_in_list(item) if isinstance(item, (set, tuple)) else item
+        for item in t
+    )
 
 def convert_sets_in_list(l):
-    # Funzione per convertire i set in liste dentro una lista
-    return [convert_sets_in_list(item) if isinstance(item, (set, tuple)) else item for item in l]
+    """Converte eventuali ``set`` presenti in una lista in ``list``.
+
+    Parameters
+    ----------
+    l : list
+        Lista che può contenere set.
+
+    Returns
+    -------
+    list
+        Lista con eventuali set convertiti in liste.
+    """
+
+    return [
+        convert_sets_in_list(item) if isinstance(item, (set, tuple)) else item
+        for item in l
+    ]

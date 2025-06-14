@@ -26,6 +26,7 @@ class TextPreprocessor:
     _WHITESPACE_PATTERN = re.compile(r"[\r\n\t]+")
 
     def __init__(self):
+        """Inizializza lo stopword set e i pattern di pulizia."""
         # Carico tutte le stopword supportate da SUPPORTED_LANGUAGES
         self.stop_words = set()
         for lang in SUPPORTED_LANGUAGES:
@@ -96,6 +97,7 @@ class TextPreprocessor:
 
         # Funzione helper per pulire e concatenare i testi di ogni utente
         def merge_and_clean(texts):
+            """Unisce i testi preprocessandoli."""
             cleaned = []
             for text in texts.astype(str):
                 if pd.isna(text) or text.strip().lower() == "nan":

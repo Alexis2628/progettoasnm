@@ -3,8 +3,17 @@ import networkx as nx
 from collections import defaultdict
 import pandas as pd
 def build_clusters_from_partition(partition):
-    """
-    Costruisce un dict cluster_id -> lista di nodi dalla partition nodo->cluster
+    """Costruisce un mapping cluster_id -> lista di nodi.
+
+    Parameters
+    ----------
+    partition : dict
+        Dizionario nodo -> id del cluster.
+
+    Returns
+    -------
+    dict
+        Mappatura cluster_id -> lista di nodi.
     """
     clusters = defaultdict(list)
     for node, cid in partition.items():
@@ -12,9 +21,19 @@ def build_clusters_from_partition(partition):
     return dict(clusters)
 
 def compute_cluster_connections(G, partition):
-    """
-    Calcola per ogni cluster i cluster connessi tramite almeno un arco esterno
-    Restituisce dict cluster_id -> lista ordinata di cluster_id
+    """Trova i cluster collegati da almeno un arco uscente.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Grafo su cui lavorare.
+    partition : dict
+        Mappatura nodo -> cluster_id.
+
+    Returns
+    -------
+    dict
+        Cluster_id -> lista ordinata di cluster adiacenti.
     """
     connections = defaultdict(set)
     for u, v in G.edges():
@@ -26,11 +45,23 @@ def compute_cluster_connections(G, partition):
     return {cid: sorted(neigh) for cid, neigh in connections.items()}
 
 def compute_cluster_stats(G, df_data, clusters, top_n=5):
-    """
-    Per ogni cluster calcola:
-      - num_nodes, num_edges, avg_degree, density
-      - top N utenti per grado con statistiche (usa df_data su thread_user_pk)
-    Restituisce dict cluster_id->stats
+    """Calcola statistiche e top utenti per ciascun cluster.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Grafo di riferimento.
+    df_data : pandas.DataFrame
+        Dati utente da cui estrarre statistiche.
+    clusters : dict
+        Mappatura cluster_id -> lista di nodi.
+    top_n : int, optional
+        Numero di utenti top per grado da restituire.
+
+    Returns
+    -------
+    dict
+        cluster_id -> statistiche calcolate.
     """
     # Prepara statistiche per utente
     df_user = df_data.groupby('thread_user_pk').agg(

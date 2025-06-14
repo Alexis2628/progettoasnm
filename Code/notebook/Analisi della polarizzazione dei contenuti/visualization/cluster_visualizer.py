@@ -10,6 +10,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 class ClusterVisualizer:
     def __init__(self, output_dir):
+        """Imposta la cartella di output per i grafici."""
         self.output_dir = output_dir
 
     def visualize(self, user_opinions, cluster_labels):

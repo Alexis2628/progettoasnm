@@ -3,7 +3,34 @@ from utils.file_utils import save_results_to_file, convert_sets_in_dict
 from utils.plotter import Plotter
 import os
 
-def run_models_on_different_seed_lengths(graph_builder,top_influencers,save_to_file,save_fig,steps,seed_lengths, output= "model"):
+def run_models_on_different_seed_lengths(
+    graph_builder,
+    top_influencers,
+    save_to_file,
+    save_fig,
+    steps,
+    seed_lengths,
+    output="model",
+):
+    """Esegue i modelli variando il numero di seed iniziali.
+
+    Parameters
+    ----------
+    graph_builder : GraphConstructor
+        Oggetto che contiene il grafo.
+    top_influencers : list
+        Lista ordinata di nodi con maggiore influenza.
+    save_to_file : bool
+        Se ``True`` salva i risultati su disco.
+    save_fig : bool
+        Se ``True`` salva i grafici generati.
+    steps : int
+        Numero di passi di simulazione.
+    seed_lengths : iterable
+        Diverse quantità di nodi seed da testare.
+    output : str, optional
+        Sottocartella di output.
+    """
     graph = graph_builder.graph
     all_results = {}
     output_dir = r"Code\notebook\Studio della propagazione dell'influenza\output/"+output
@@ -31,7 +58,34 @@ def run_models_on_different_seed_lengths(graph_builder,top_influencers,save_to_f
         plotter.plot_all_results(all_results, seed_lengths,output_dir+"/plot_comparative_seed_length")
 
 
-def run_models_on_differnt_centralities(centralities, graph_builder, save_to_file, save_fig,seed_length,steps, output= "model"):
+def run_models_on_differnt_centralities(
+    centralities,
+    graph_builder,
+    save_to_file,
+    save_fig,
+    seed_length,
+    steps,
+    output="model",
+):
+    """Esegue i modelli scegliendo i seed in base alle centralità.
+
+    Parameters
+    ----------
+    centralities : dict
+        Dizionario nome_centralità -> valori per nodo.
+    graph_builder : GraphConstructor
+        Oggetto contenente il grafo.
+    save_to_file : bool
+        Se ``True`` salva i risultati su disco.
+    save_fig : bool
+        Se ``True`` produce i grafici.
+    seed_length : int
+        Numero di nodi seed per ciascuna centralità.
+    steps : int
+        Numero di passi di simulazione.
+    output : str, optional
+        Sottocartella di output.
+    """
     centrality_metrics = ["Degree Centrality", "Closeness Centrality", "Betweenness Centrality",
                           "PageRank", "Katz Centrality","Eigenvector Centrality","HITS Hub Scores","HITS Authority Scores"]
     graph = graph_builder.graph
@@ -65,7 +119,25 @@ def run_models_on_differnt_centralities(centralities, graph_builder, save_to_fil
         plotter = Plotter()
         plotter.plot_all_results(all_results_by_centrality, centrality_metrics,output_dir + "/plot_centrality_comparison",use_centrality_labels=True)
 
-def run_models_on_differnt_optimizer(optimization_results, graph_builder, save_fig,steps):
+def run_models_on_differnt_optimizer(
+    optimization_results,
+    graph_builder,
+    save_fig,
+    steps,
+):
+    """Esegue i modelli utilizzando i seed ottenuti dagli ottimizzatori.
+
+    Parameters
+    ----------
+    optimization_results : dict
+        Mappatura nome_ottimizzatore -> nodi seed scelti.
+    graph_builder : GraphConstructor
+        Oggetto contenente il grafo.
+    save_fig : bool
+        Se ``True`` genera i grafici comparativi.
+    steps : int
+        Numero di passi di simulazione.
+    """
     optmizer_methods = ["Greedy", "CELF", "CELF++","Stop-And-Go", 
                           "Static","SIMPATH","LDAG","IRIE",
                           "PMC","TIM+","EaSyIM","Sketching","Singles"]

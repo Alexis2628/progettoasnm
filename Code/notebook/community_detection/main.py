@@ -35,6 +35,14 @@ from Code.notebook.community_detection.utils.cluster_helper import (
 
 
 def main(force: bool = False):
+    """Esegue i metodi di community detection sul grafo.
+
+    Parameters
+    ----------
+    force : bool, optional
+        Se ``True`` ricalcola anche se esistono file di output.
+    """
+
     # setup logger
     setup_logger()
     logger = logging.getLogger(__name__)

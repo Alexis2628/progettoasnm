@@ -12,6 +12,7 @@ class SentimentAnalyzer:
     """
 
     def __init__(self, method: str = "roberta"):
+        """Imposta il metodo di analisi del sentiment."""
         valid_methods = ["distilbert", "vader", "roberta"]
         if method not in valid_methods:
             raise ValueError(f"Metodo non valido '{method}'. Scegliere tra {valid_methods}.")
@@ -61,6 +62,7 @@ class SentimentAnalyzer:
 
         # 2) Determino l’etichetta più frequente (mode) per utente
         def mode_or_none(series: pd.Series):
+            """Restituisce la moda di una serie o ``None``."""
             m = series.mode()
             return m.iloc[0] if not m.empty else None
 

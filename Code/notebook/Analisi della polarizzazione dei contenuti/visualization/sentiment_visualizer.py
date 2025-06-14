@@ -11,6 +11,7 @@ import gc
 
 class SentimentVisualizer:
     def __init__(self, output_dir):
+        """Imposta la cartella di output."""
         self.output_dir = output_dir
 
     def visualize_sentiment_distribution(self,sentiment_by_user, cluster_labels):

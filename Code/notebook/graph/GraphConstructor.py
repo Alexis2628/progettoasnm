@@ -13,22 +13,31 @@ from Code.notebook.graph.utils import dtype_data
 
 # Funzioni helper per il calcolo delle centralità
 def degree_centrality(graph):
+    """Wrapper di ``nx.degree_centrality``."""
+
     return nx.degree_centrality(graph)
 
 
 def closeness_centrality(graph):
+    """Wrapper di ``nx.closeness_centrality``."""
+
     return nx.closeness_centrality(graph)
 
 
 def betweenness_centrality(graph):
+    """Wrapper di ``nx.betweenness_centrality`` con pesi."""
+
     return nx.betweenness_centrality(graph, normalized=True, weight="weight")
 
 
 def pagerank(graph):
+    """Calcola il PageRank del grafo."""
+
     return nx.pagerank(graph, alpha=0.85, max_iter=1000, tol=1e-6)
 
 
 def katz_centrality(graph):
+    """Calcola la Katz centrality gestendo possibili problemi di convergenza."""
     low_memory = True
     if low_memory:
         eigenvalues = nx.adjacency_spectrum(graph)
@@ -44,10 +53,14 @@ def katz_centrality(graph):
 
 
 def eigenvector_centrality(graph):
+    """Wrapper di ``nx.eigenvector_centrality``."""
+
     return nx.eigenvector_centrality(graph, max_iter=300)
 
 
 def hits_scores(graph):
+    """Restituisce i punteggi hub e authority del grafo."""
+
     hubs, authorities = nx.hits(graph, max_iter=300, tol=1e-08)
     return hubs, authorities
 
@@ -62,6 +75,19 @@ class GraphConstructor:
         info_filepath=r"Code/notebook/graph/info/graph_info.json",
         centralities_filepath=r"Code/notebook/graph/info/centralities_info.json",
     ):
+        """Inizializza la struttura e carica i dati di input.
+
+        Parameters
+        ----------
+        followers_paths : list, optional
+            Percorsi ai file CSV dei follower.
+        post_data_dir : str, optional
+            Directory contenente i dati dei post.
+        info_filepath : str, optional
+            Percorso del file JSON per le info di grafo.
+        centralities_filepath : str, optional
+            Percorso del file JSON per le centralità.
+        """
 
         self.df = pd.concat(
             [
@@ -91,6 +117,8 @@ class GraphConstructor:
         self.centralities_filepath = centralities_filepath
 
     def build_graph(self):
+        """Costruisce il grafo dei follower."""
+
         followers_per_user = (
             self.df.groupby("thread_user_pk")["thread_follower_pk"]
             .apply(list)
@@ -106,6 +134,8 @@ class GraphConstructor:
         return self.graph
 
     def log_graph_info(self):
+        """Stampa informazioni basilari sul grafo attuale."""
+
         logging.info(f"Numero di nodi del grafo: {self.graph.number_of_nodes()}")
         logging.info(f"Numero di archi del grafo: {self.graph.number_of_edges()}")
 
@@ -122,6 +152,8 @@ class GraphConstructor:
         return max(0, min(trust, 1))
 
     def calculate_centralities(self):
+        """Calcola diverse misure di centralità in parallelo."""
+
         centrality_functions = {
             "Degree Centrality": degree_centrality,
             "Closeness Centrality": closeness_centrality,
@@ -153,6 +185,8 @@ class GraphConstructor:
         return centralities
 
     def print_top_centralities(self, centralities=None, top_k=5):
+        """Stampa le prime ``top_k`` centralità calcolate."""
+
         if not centralities:
             centralities = self.get_centralities_info()
         for centrality_name, values in centralities.items():
@@ -166,8 +200,12 @@ class GraphConstructor:
                 print(f"Node {node}: {value:.4f}")
 
     def get_basic_graph_info(self):
-        """
-        Restituisce informazioni di base sul grafo.
+        """Restituisce alcune statistiche di base sul grafo.
+
+        Returns
+        -------
+        dict
+            Informazioni come numero di nodi, archi, densità e grado medio.
         """
         num_nodes = self.graph.number_of_nodes()
         num_edges = self.graph.number_of_edges()
@@ -183,8 +221,12 @@ class GraphConstructor:
         return info
 
     def get_connectivity_info(self):
-        """
-        Estrae informazioni sulla connettività del grafo.
+        """Estrae informazioni sulla connettività del grafo.
+
+        Returns
+        -------
+        dict
+            Dati su componenti connesse e statistiche di cammino.
         """
         info = {}
         # Componenti fortemente connesse (per grafi diretti)
@@ -226,9 +268,7 @@ class GraphConstructor:
         return info
 
     def get_clustering_info(self):
-        """
-        Calcola il coefficiente di clustering medio e per nodo (su grafo non orientato).
-        """
+        """Calcola il coefficiente di clustering medio e per nodo."""
         undirected_graph = self.graph.to_undirected()
         clustering_per_node = nx.clustering(undirected_graph)
         avg_clustering = (
@@ -244,9 +284,7 @@ class GraphConstructor:
         return info
 
     def get_assortativity_info(self):
-        """
-        Calcola il coefficiente di assortatività del grafo basato sul grado.
-        """
+        """Calcola il coefficiente di assortatività basato sul grado."""
         try:
             assortativity = nx.degree_assortativity_coefficient(self.graph)
         except Exception as e:
@@ -255,9 +293,7 @@ class GraphConstructor:
         return {"Assortatività di grado": assortativity}
 
     def get_degree_distribution(self):
-        """
-        Restituisce la distribuzione del grado dei nodi.
-        """
+        """Restituisce la distribuzione del grado dei nodi."""
         degree_sequence = [d for n, d in self.graph.degree()]
         distribution = {}
         for degree in degree_sequence:
@@ -266,10 +302,17 @@ class GraphConstructor:
         return sorted_distribution
 
     def get_all_graph_info(self, force_recalculate=False):
-        """
-        Raccoglie e restituisce tutte le informazioni estratte dal grafo.
-        Se il file esiste e force_recalculate è False, carica i dati salvati.
-        Altrimenti, ricalcola e salva le informazioni.
+        """Restituisce tutte le informazioni calcolate sul grafo.
+
+        Parameters
+        ----------
+        force_recalculate : bool, optional
+            Se ``True`` ignora eventuali file salvati e ricalcola tutto.
+
+        Returns
+        -------
+        dict
+            Informazioni aggregate sul grafo.
         """
         if not force_recalculate and os.path.exists(self.info_filepath):
             try:
@@ -305,10 +348,17 @@ class GraphConstructor:
         return info
 
     def get_centralities_info(self, force_recalculate=False):
-        """
-        Calcola e restituisce le centralità del grafo.
-        Se il file esiste e force_recalculate è False, carica i dati salvati.
-        Altrimenti, ricalcola e salva le centralità.
+        """Restituisce le centralità del grafo, calcolandole se necessario.
+
+        Parameters
+        ----------
+        force_recalculate : bool, optional
+            Se ``True`` ricalcola ignorando eventuali file salvati.
+
+        Returns
+        -------
+        dict
+            Dizionario delle diverse centralità calcolate.
         """
         if not force_recalculate and os.path.exists(self.centralities_filepath):
             try:
