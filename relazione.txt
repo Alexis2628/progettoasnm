@@ -1,0 +1,116 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{Analisi delle Reti Sociali su Threads di Instagram}
+\author{\textbf{Progetto di Social Network Analysis}}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduzione}
+Lo scopo di questo progetto \`e analizzare in profondit\`a le dinamiche della piattaforma \emph{Threads} di Instagram. A partire da oltre 387\,000 post e circa 20\,000 utenti sono state studiate tre aree principali: la propagazione dell'influenza, l'identificazione delle comunit\`a e la polarizzazione dei contenuti. L'obiettivo \`e fornire una panoramica completa di come le informazioni circolano, come gli utenti si raggruppano in comunit\`a e in che modo le opinioni possano polarizzarsi all'interno della rete.
+
+\section{Raccolta e Preprocessing dei Dati}
+\begin{itemize}
+    \item \textbf{Raccolta}: \`E stato utilizzato un crawler basato sulla \emph{Threads API} per estrarre post e interazioni (\emph{like} e risposte). Nel complesso sono stati analizzati 387\,759 post e 65\,005 relazioni di follow tra 20\,501 utenti.
+    \item \textbf{Preprocessing}: i dati vengono puliti rimuovendo rumore, duplicati e normalizzando la codifica dei caratteri. La fase testuale prevede tokenizzazione, rimozione delle stopword, stemming/lemmatizzazione e traduzione automatica dei contenuti in lingua diversa dall'italiano.
+\end{itemize}
+
+\section{Studio della Propagazione dell'Influenza}
+L'analisi dell'influenza mira a identificare gli utenti che, attraverso le loro interazioni, hanno maggiore capacit\`a di diffondere contenuti. Tutte le analisi sono state eseguite su grafi diretti derivanti da \emph{like} e risposte.
+
+\subsection{Metriche di Centralit\`a}
+Le misure di centralit\`a permettono di quantificare l'importanza dei nodi. In questa sede sono state calcolate le seguenti metriche.
+
+\paragraph{PageRank} Valuta l'autorevolezza di un utente in base alla struttura dei collegamenti entranti. I cinque utenti con valore pi\`u elevato risultano essere \texttt{63095622792}, \texttt{68109902162}, \texttt{63400205749}, \texttt{66411901180} e \texttt{63086999261}. Questi account rappresentano hub di discussione molto attivi.
+
+\paragraph{Eigenvector Centrality} Misura l'influenza tenendo conto anche dell'importanza dei vicini. I punteggi confermano in larga parte la classifica di PageRank ma evidenziano differenze per utenti con reti pi\`u localizzate.
+
+\paragraph{Betweenness Centrality} Evidenzia i nodi che fungono da ponte fra gruppi diversi. I valori sono pi\`u dispersi e mettono in luce utenti con ruoli di connettore, utili per diffondere i contenuti oltre la propria cerchia.
+
+\subsubsection{Confronto tra metriche}
+La combinazione di PageRank ed eigenvector centrality evidenzia i veri hub della rete, mentre la betweenness individua profili meno centrali ma strategici per la propagazione. L'uso congiunto delle tre misure permette di selezionare seed eterogenei per successive campagne di diffusione.
+
+\subsection{Modelli di Diffusione}
+Per simulare la viralit\`a di un contenuto sono stati implementati vari modelli.
+
+\paragraph{Independent Cascade (IC)} Ogni utente influenzato ha un'unica chance di attivare i propri vicini con probabilit\`a fissata. In media si raggiungono 1\,429 utenti partendo da dieci seed.
+
+\paragraph{Linear Threshold (LT)} Ogni nodo viene attivato quando la somma dei pesi in ingresso supera una soglia. Con lo stesso set di seed la diffusione si arresta dopo circa 150 attivazioni, mostrando una propagazione pi\`u lenta.
+
+\paragraph{General Cascade} Versione pi\`u permissiva del modello IC in cui la probabilit\`a di influenza decresce meno rapidamente. La simulazione copre oltre 13\,000 utenti evidenziando l'effetto di parametri meno restrittivi.
+
+\subsubsection{Confronto tra modelli di diffusione}
+Il modello LT risulta il pi\`u conservativo, mentre il General Cascade garantisce la massima copertura a scapito del realismo. L'IC rappresenta quindi un buon compromesso tra accuratezza e ampiezza della propagazione.
+
+\subsection{Algoritmi di Massimizzazione dell'Influenza}
+La scelta di un set iniziale di utenti \`e cruciale per massimizzare la diffusione. Tra gli algoritmi testati vi \`e l'approccio \emph{greedy} con ottimizzazione \emph{CELF}, affiancato da strategie come \emph{IRIE} e \emph{SIMPATH}.
+
+\paragraph{Greedy--CELF} Seleziona iterativamente i nodi che aumentano maggiormente la copertura stimata. Con dieci seed consente di raggiungere quasi interamente la platea simulata.
+
+\paragraph{IRIE} Combina l'ottimizzazione iterativa con la stima delle influenze residue. I risultati sono comparabili al metodo greedy ma con tempi di calcolo inferiori.
+
+\paragraph{SIMPATH} Valuta i percorsi di influenza pi\`u probabili generando un insieme di seed leggermente diverso. La copertura finale \`e marginalmente minore ma garantisce maggiore diversit\`a tra i nodi scelti.
+
+\subsubsection{Confronto algoritmi di massimizzazione}
+Tutti gli approcci raggiungono coperture simili (oltre l'80\% degli utenti nel modello IC). Il metodo greedy rimane la baseline pi\`u efficace, mentre IRIE e SIMPATH risultano utili quando occorrono tempi di calcolo ridotti o seed pi\`u diversificati.
+
+\section{Identificazione delle Comunit\`a}
+Per individuare gruppi coesi di utenti sono stati adottati diversi algoritmi di community detection.
+
+\paragraph{Girvan--Newman} Basato sulla rimozione iterativa degli archi con maggior betweenness, ha restituito solo 6 comunit\`a con modularit\`a trascurabile; risulta dunque poco adatto a grafi di grandi dimensioni.
+
+\paragraph{Louvain} Utilizza un approccio gerarchico di ottimizzazione della modularit\`a. Ha individuato 40 gruppi con modularit\`a attorno a 0.72, mostrando una buona coesione interna.
+
+\paragraph{Leiden} Evoluzione del metodo Louvain che garantisce comunit\`a pi\`u ben separate. L'esecuzione ha prodotto 38 comunit\`a con modularit\`a 0.74, risultando il pi\`u performante sul grafo da 20\,000 utenti e 65\,000 collegamenti.
+
+\subsubsection{Confronto tra algoritmi}
+Il metodo Leiden bilancia accuratezza e tempi di calcolo, superando leggermente Louvain in termini di modularit\`a. Girvan--Newman si dimostra impraticabile in questo contesto a causa dell'elevata complessit\`a computazionale e della scarsa qualit\`a dei cluster prodotti.
+\section{Analisi della Polarizzazione dei Contenuti}
+Per studiare se la piattaforma presenti cluster di opinioni contrapposte, \`e stata condotta un'analisi di polarizzazione articolata in pi\`u fasi.
+
+\subsection{Analisi del Sentiment}
+Utilizzando librerie NLP come \texttt{NLTK} e \texttt{spaCy}, i post e le risposte sono stati classificati in positivo, negativo o neutro. Nei messaggi raccolti si osserva un equilibrio: circa 200\,000 testi negativi e 188\,000 positivi con punteggio medio 0.95.
+
+\subsection{Clustering dei contenuti}
+\paragraph{K-means} Applicato sulla rappresentazione TF--IDF dei testi, ha prodotto 134 cluster, di cui il pi\`u numeroso conta oltre 5\,800 messaggi.
+
+\paragraph{DBSCAN} Utilizzando distanze basate su embedding semantici ha generato 327 gruppi pi\`u frammentati, rivelando nicchie di discussione meno popolose.
+
+\subsubsection{Confronto tra metodi di clustering}
+K-means fornisce una suddivisione pi\`u compatta ma richiede di fissare a priori il numero di cluster; DBSCAN invece individua automaticamente zone di densit\`a elevata ma tende a creare molti piccoli gruppi.
+
+\subsection{Topic Modeling}
+Tramite LDA (Latent Dirichlet Allocation) sono stati estratti i temi principali di ciascun cluster. Emergono argomenti fortemente divisivi legati a politica e intrattenimento, confermando la presenza di polarizzazione nei thread analizzati.
+
+\section{Strumenti Utilizzati}
+\begin{itemize}
+    \item \textbf{Linguaggio}: Python
+    \item \textbf{Librerie principali}: \texttt{NetworkX}, \texttt{Pandas}, \texttt{Matplotlib}, \texttt{Seaborn}, \texttt{Gensim}, \texttt{NLTK}, \texttt{scikit-learn}
+    \item \textbf{Visualizzazione}: grafici di rete generati con \texttt{Matplotlib} e \texttt{Gephi}
+\end{itemize}
+
+\section{Esempi di Output}
+\begin{itemize}
+    \item Lista degli utenti pi\`u influenti secondo le metriche di centralit\`a (PageRank, Eigenvector, Betweenness).
+    \item Visualizzazione delle cascata di condivisione per i contenuti virali.
+    \item Confronto tra i modelli di diffusione IC e LT evidenziando differenze nelle dinamiche di propagazione.
+    \item Rappresentazione grafica delle comunit\`a individuate con i rispettivi temi principali.
+    \item Analisi della distribuzione del sentiment e dei temi polarizzanti.
+\end{itemize}
+
+\section{Conclusioni}
+L'integrazione di tecniche di social network analysis e natural language processing consente di ottenere una visione approfondita delle interazioni su Threads. Identificare gli utenti influenti, le comunit\`a pi\`u attive e la presenza di polarizzazione offre spunti utili sia per la ricerca accademica sia per possibili applicazioni di marketing o moderazione dei contenuti.
+
+\end{document}
