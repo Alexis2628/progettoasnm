@@ -1,5 +1,6 @@
 import logging
 
+
 def setup_logger():
     """Configura il logger di base per l'applicazione."""
 

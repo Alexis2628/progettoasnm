@@ -10,9 +10,9 @@ def pmc(graph, k, p=0.1):
             reduced_graph.remove_edge(u, v)
     seed_set = set(
         sorted(
-            reduced_graph.nodes(), 
-            key=lambda node: nx.degree_centrality(reduced_graph)[node], 
-            reverse=True
+            reduced_graph.nodes(),
+            key=lambda node: nx.degree_centrality(reduced_graph)[node],
+            reverse=True,
         )[:k]
     )
     return seed_set

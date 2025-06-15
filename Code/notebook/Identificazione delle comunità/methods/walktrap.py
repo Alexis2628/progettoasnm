@@ -18,7 +18,7 @@ def walktrap_clustering(graph: nx.Graph, steps: int = 4) -> dict:
     labels : dict
         Mappa nodo->cluster (int).
     """
-    # converte da networkx a igraph
+
     ig_graph = ig.Graph.TupleList(
         graph.edges(), directed=False, vertex_name_attr="name"
     )

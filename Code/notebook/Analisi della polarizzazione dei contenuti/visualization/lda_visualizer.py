@@ -3,6 +3,7 @@ import pyLDAvis
 import pyLDAvis.gensim_models
 import os
 
+
 class LDAViz:
     @staticmethod
     def visualize(lda_model, corpus, dictionary, output_dir):

@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 if __name__ == "__main__":
     logger.info("Starting the influence propagation analysis script.")
 
-    # Parameters
     run_models = False
     run_optimizers = False
     force_recalculate = False
@@ -46,7 +45,6 @@ if __name__ == "__main__":
     graph = gc.graph
     gc.log_graph_info()
 
-    # Ottieni e stampa le informazioni complete sul grafo
     all_info = gc.get_all_graph_info(force_recalculate=force_recalculate)
     print("\nInformazioni complete sul grafo:")
     for key, value in all_info.items():
@@ -54,12 +52,11 @@ if __name__ == "__main__":
             continue
         print(f"{key}: {value}")
 
-    # Ottieni e stampa le centralità
     centralities = gc.get_centralities_info(force_recalculate=force_recalculate)
     print("\nCentralità calcolate:")
     for centrality_name, values in centralities.items():
         print(f"\n{centrality_name}:")
-        # Visualizza i primi 5 nodi in base al valore della centralità
+
         sorted_values = sorted(values.items(), key=lambda x: x[1], reverse=True)[:5]
         for node, score in sorted_values:
             print(f"  Nodo {node}: {score:.4f}")

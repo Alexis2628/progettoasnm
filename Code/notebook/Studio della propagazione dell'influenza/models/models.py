@@ -10,6 +10,7 @@ from .simulate_tr import simulate_tr
 from .simulate_dc import simulate_dc
 from .friend_foe_model import friend_foe_dynamic_linear_threshold
 
+
 class Models:
     def __init__(self, graph):
         """
@@ -18,7 +19,6 @@ class Models:
         """
         self.graph = graph
 
-    # Modelli con semi
     def run_linear_threshold(self, seed_nodes):
         """Esegue il modello Linear Threshold con semi iniziali."""
         return linear_threshold_model(self.graph, seed_nodes)
@@ -27,45 +27,45 @@ class Models:
         """Esegue il modello Independent Cascade con semi iniziali."""
         return independent_cascade_model(self.graph, seed_nodes, p)
 
-    # Modelli epidemiologici
-    def run_si(self, beta=0.1, steps=100,initial_infected = None):
+    def run_si(self, beta=0.1, steps=100, initial_infected=None):
         """Esegue il modello SI con parametri beta e numero di passi."""
-        return simulate_si(self.graph, beta, steps,initial_infected)
+        return simulate_si(self.graph, beta, steps, initial_infected)
 
-    def run_sir(self, beta=0.1, gamma=0.05, steps=100,initial_infected = None):
+    def run_sir(self, beta=0.1, gamma=0.05, steps=100, initial_infected=None):
         """Esegue il modello SIR con parametri beta, gamma e numero di passi."""
-        return simulate_sir(self.graph, beta, gamma, steps,initial_infected)
+        return simulate_sir(self.graph, beta, gamma, steps, initial_infected)
 
-    def run_sis(self, beta=0.1, gamma=0.05, steps=100,initial_infected = None):
+    def run_sis(self, beta=0.1, gamma=0.05, steps=100, initial_infected=None):
         """Esegue il modello SIS con parametri beta, gamma e numero di passi."""
-        return simulate_sis(self.graph, beta, gamma, steps,initial_infected)
+        return simulate_sis(self.graph, beta, gamma, steps, initial_infected)
 
-    def run_sirs(self, beta=0.1, gamma=0.05, lambda_=0.01, steps=100,initial_infected = None):
+    def run_sirs(
+        self, beta=0.1, gamma=0.05, lambda_=0.01, steps=100, initial_infected=None
+    ):
         """Esegue il modello SIRS con parametri beta, gamma, lambda e numero di passi."""
-        return simulate_sirs(self.graph, beta, gamma, lambda_, steps,initial_infected)
+        return simulate_sirs(self.graph, beta, gamma, lambda_, steps, initial_infected)
 
-    # Modelli basati su soglie
-    def run_gt(self, steps=100,seed_nodes = None):
+    def run_gt(self, steps=100, seed_nodes=None):
         """Esegue il modello General Threshold con soglie specificate."""
-        return simulate_gt(self.graph, steps,seed_nodes)
+        return simulate_gt(self.graph, steps, seed_nodes)
 
-    # Modelli stocastici
-    def run_gc(self, prob=0.1, steps=100,seed_nodes = None):
+    def run_gc(self, prob=0.1, steps=100, seed_nodes=None):
         """Esegue il modello General Cascade con probabilità di attivazione."""
-        return simulate_gc(self.graph, prob, steps,seed_nodes)
+        return simulate_gc(self.graph, prob, steps, seed_nodes)
 
-    def run_tr(self, steps=100,seed_nodes = None):
+    def run_tr(self, steps=100, seed_nodes=None):
         """Esegue il modello Threshold Reversibile con probabilità e numero di passi."""
-        return simulate_tr(self.graph, steps,seed_nodes)
+        return simulate_tr(self.graph, steps, seed_nodes)
 
-    def run_dc(self, initial_prob=0.1, decay_factor=0.95, steps=100,seed_nodes = None):
+    def run_dc(self, initial_prob=0.1, decay_factor=0.95, steps=100, seed_nodes=None):
         """Esegue il modello Deterministic and Chaotic Diffusion con parametri di inizializzazione e decadimento."""
-        return simulate_dc(self.graph, initial_prob, decay_factor, steps,seed_nodes)
+        return simulate_dc(self.graph, initial_prob, decay_factor, steps, seed_nodes)
 
-    # Modello Friend-Foe
     def run_friend_foe(self, seed_nodes, trust_function):
         """Esegue il modello Friend-Foe con semi iniziali e funzione di fiducia specificata."""
-        return friend_foe_dynamic_linear_threshold(self.graph, seed_nodes, trust_function)
+        return friend_foe_dynamic_linear_threshold(
+            self.graph, seed_nodes, trust_function
+        )
 
     def run_all(self, seed_nodes=None, **kwargs):
         """
@@ -77,33 +77,60 @@ class Models:
         """
         results = {}
 
-        # Modelli con semi
         if seed_nodes is not None:
-            results['Linear Threshold'] = self.run_linear_threshold(seed_nodes)
-            results['Independent Cascade'] = self.run_independent_cascade(seed_nodes, kwargs.get('p', 0.1))
+            results["Linear Threshold"] = self.run_linear_threshold(seed_nodes)
+            results["Independent Cascade"] = self.run_independent_cascade(
+                seed_nodes, kwargs.get("p", 0.1)
+            )
 
-        # Modelli epidemiologici
-        results['SI'] = self.run_si(kwargs.get('beta', 0.1), kwargs.get('steps', 100),seed_nodes)
-        results['SIR'] = self.run_sir(kwargs.get('beta', 0.1), kwargs.get('gamma', 0.05), kwargs.get('steps', 100),seed_nodes)
-        results['SIS'] = self.run_sis(kwargs.get('beta', 0.1), kwargs.get('gamma', 0.05), kwargs.get('steps', 100),seed_nodes)
-        results['SIRS'] = self.run_sirs(kwargs.get('beta', 0.1), kwargs.get('gamma', 0.05), kwargs.get('lambda_', 0.01), kwargs.get('steps', 100),seed_nodes)
+        results["SI"] = self.run_si(
+            kwargs.get("beta", 0.1), kwargs.get("steps", 100), seed_nodes
+        )
+        results["SIR"] = self.run_sir(
+            kwargs.get("beta", 0.1),
+            kwargs.get("gamma", 0.05),
+            kwargs.get("steps", 100),
+            seed_nodes,
+        )
+        results["SIS"] = self.run_sis(
+            kwargs.get("beta", 0.1),
+            kwargs.get("gamma", 0.05),
+            kwargs.get("steps", 100),
+            seed_nodes,
+        )
+        results["SIRS"] = self.run_sirs(
+            kwargs.get("beta", 0.1),
+            kwargs.get("gamma", 0.05),
+            kwargs.get("lambda_", 0.01),
+            kwargs.get("steps", 100),
+            seed_nodes,
+        )
 
-        
-        results['General Threshold'] = self.run_gt(steps=kwargs.get('steps', 100),seed_nodes=seed_nodes)
+        results["General Threshold"] = self.run_gt(
+            steps=kwargs.get("steps", 100), seed_nodes=seed_nodes
+        )
 
-        # Modelli stocastici
-        results['General Cascade'] = self.run_gc(kwargs.get('prob', 0.1), kwargs.get('steps', 100),seed_nodes)
-        results['Threshold Reversibile'] = self.run_tr(kwargs.get('steps', 100),seed_nodes)
-        results['Deterministic and Chaotic Diffusion'] = self.run_dc(kwargs.get('initial_prob', 0.1), kwargs.get('decay_factor', 0.95), kwargs.get('steps', 100),seed_nodes)
+        results["General Cascade"] = self.run_gc(
+            kwargs.get("prob", 0.1), kwargs.get("steps", 100), seed_nodes
+        )
+        results["Threshold Reversibile"] = self.run_tr(
+            kwargs.get("steps", 100), seed_nodes
+        )
+        results["Deterministic and Chaotic Diffusion"] = self.run_dc(
+            kwargs.get("initial_prob", 0.1),
+            kwargs.get("decay_factor", 0.95),
+            kwargs.get("steps", 100),
+            seed_nodes,
+        )
 
-        # Modello Friend-Foe
-        if seed_nodes is not None and 'trust_function' in kwargs:
-            results['Friend-Foe'] = self.run_friend_foe(seed_nodes, kwargs['trust_function'])
-        # self.print_result(results)
+        if seed_nodes is not None and "trust_function" in kwargs:
+            results["Friend-Foe"] = self.run_friend_foe(
+                seed_nodes, kwargs["trust_function"]
+            )
+
         return results
 
-
-    def print_result(self,model_results):
+    def print_result(self, model_results):
         """Stampa un riepilogo dei risultati dei modelli.
 
         Parameters
@@ -112,17 +139,18 @@ class Models:
             Dizionario nome_modello -> output prodotto.
         """
 
-        # Stampa dei risultati dei modelli
         print("Risultati dei modelli (ultima iterazione):")
         for model_name, result in model_results.items():
             if result and isinstance(result, dict):
-                last_step = result[list(result.keys())[-1]]  # ultima iterazione
+                last_step = result[list(result.keys())[-1]]
                 if isinstance(last_step, set):
                     print(f"{model_name}: {len(last_step)} nodi attivi")
                 elif isinstance(last_step, dict):
-                    print(f"{model_name}: {len(last_step)} nodi attivi (o altre informazioni)")
+                    print(
+                        f"{model_name}: {len(last_step)} nodi attivi (o altre informazioni)"
+                    )
                 elif isinstance(last_step, tuple):
-                    # Specifico per modelli come SIR che restituiscono tuple (S, I, R)
+
                     _, I, _ = last_step
                     print(f"{model_name}: {len(I)} nodi infetti nell'ultima iterazione")
                 else:

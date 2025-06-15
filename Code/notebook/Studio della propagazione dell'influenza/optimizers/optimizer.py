@@ -13,7 +13,7 @@ from .sketching import sketching
 from .singles import singles
 import logging
 
-# Configure root logger (this can be moved to your main entry point)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -111,7 +111,7 @@ class Optimizer:
         for name, func, extra_args in algos:
             try:
                 logger.info(f"Starting algorithm: %s", name)
-                # Merge common and specific parameters
+
                 params = {"k": k, "p": p}
                 params.update(extra_args)
                 result = func(**params)

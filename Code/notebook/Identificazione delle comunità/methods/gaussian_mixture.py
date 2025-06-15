@@ -26,17 +26,14 @@ def gaussian_mixture_clustering(
     labels : dict
         node -> cluster label (0..n_components-1)
     """
-    # 1) sparse adjacency
+
     A: csr_matrix = nx.adjacency_matrix(graph)
 
-    # 2) reduce dimensions
-    #    cap embedding_dim at (N_nodes - 1)
     max_dim = graph.number_of_nodes() - 1
     d = min(embedding_dim, max_dim)
     svd = TruncatedSVD(n_components=d)
-    X_reduced = svd.fit_transform(A)  # shape: (n_nodes, d)
+    X_reduced = svd.fit_transform(A)
 
-    # 3) GMM clustering
     gm = GaussianMixture(n_components=n_components)
     labels = gm.fit_predict(X_reduced)
 

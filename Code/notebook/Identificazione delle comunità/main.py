@@ -7,10 +7,10 @@ import json
 import logging
 import pandas as pd
 
-# community quality metrics
+
 from networkx.algorithms.community.quality import modularity, partition_quality
 
-# Import community detection methods -
+
 from methods.louvain import louvain_clustering
 from methods.label_propagation import label_propagation_clustering
 from methods.girvan_newman import girvan_newman_clustering
@@ -43,11 +43,9 @@ def main(force: bool = False):
         Se ``True`` ricalcola anche se esistono file di output.
     """
 
-    # setup logger
     setup_logger()
     logger = logging.getLogger(__name__)
 
-    # 1) Costruisci grafo e df_data
     gc = GraphConstructor()
     gc.build_graph()
     G = gc.graph.to_undirected()
@@ -57,11 +55,9 @@ def main(force: bool = False):
         else gc.data.copy()
     )
 
-    # Directory di output
     out_dir = os.path.join(os.path.dirname(__file__), "output")
     os.makedirs(out_dir, exist_ok=True)
 
-    # Definizione dei metodi
     methods = {
         "louvain": louvain_clustering,
         "label_propagation": label_propagation_clustering,
@@ -78,16 +74,14 @@ def main(force: bool = False):
 
     partitions = {}
 
-    # 2) Esecuzione e salvataggio per ciascun metodo
     for name, func in methods.items():
         out_path = os.path.join(out_dir, f"{name}_cluster_stats.json")
 
-        # Se esiste già ed è senza --force, carico la partition dai 'members' salvati
         if os.path.exists(out_path) and not force:
             logger.info(f"Carico partition esistente per {name} da {out_path}")
             with open(out_path, "r", encoding="utf-8") as f:
                 stats = json.load(f)
-            # ricostruisco il dict node->cluster_id
+
             partition = {}
             for cid_str, info in stats.items():
                 cid = int(cid_str)
@@ -97,7 +91,6 @@ def main(force: bool = False):
             partitions[name] = partition
             continue
 
-        # Altrimenti eseguo il clustering
         logger.info(f"Eseguo {name}...")
         try:
             partition = func(G)
@@ -106,33 +99,27 @@ def main(force: bool = False):
             logger.warning(f"Errore in {name}: {e}")
             continue
 
-        # costruisci strutture base
         clusters = build_clusters_from_partition(partition)
         connections = compute_cluster_connections(G, partition)
 
-        # --- calcolo metriche globali del metodo ---
         comms = list(clusters.values())
         num_comms = len(comms)
         m = modularity(G, comms)
         cov, perf = partition_quality(G, comms)
-        # -------------------------------------------
 
-        # statistiche per cluster
         stats = compute_cluster_stats(G, df_data, clusters, top_n=5)
 
-        # integra connessioni, metriche globali e members
         for cid, info in stats.items():
             info["connected_clusters"] = connections.get(cid, [])
             info["num_communities"] = num_comms
             info["modularity"] = m
             info["coverage"] = cov
             info["performance"] = perf
-            # aggiungo la lista dei membri per poter ricostruire la partition
+
             info["members"] = clusters[cid]
 
         stats = {int(cid): info for cid, info in stats.items()}
 
-        # salva JSON
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(
                 stats,
@@ -143,7 +130,6 @@ def main(force: bool = False):
             )
         logger.info(f"Salvato: {out_path}")
 
-    # 3) Confronto tra metodi (stats già iniettate, serve solo per plotting/CSV)
     comparator = Comparator(G, partitions, out_dir)
     df_metrics = comparator.compute_metrics()
     comparator.plot_metrics(df_metrics)

@@ -16,9 +16,9 @@ def modularity_maximization_clustering(graph: nx.Graph) -> dict:
     dict
         Mappa nodo->cluster (int).
     """
-    # Trova le comunità massimizzando la modularità
+
     communities = greedy_modularity_communities(graph)
-    # Assegna un'etichetta a ogni nodo
+
     labels = {}
     for cluster_id, community in enumerate(communities):
         for node in community:

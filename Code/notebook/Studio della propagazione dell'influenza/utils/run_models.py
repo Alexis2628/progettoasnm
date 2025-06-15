@@ -3,6 +3,7 @@ from utils.file_utils import save_results_to_file, convert_sets_in_dict
 from utils.plotter import Plotter
 import os
 
+
 def run_models_on_different_seed_lengths(
     graph_builder,
     top_influencers,
@@ -33,12 +34,10 @@ def run_models_on_different_seed_lengths(
     """
     graph = graph_builder.graph
     all_results = {}
-    output_dir = os.path.join(
-        os.path.dirname(__file__), "..", "output", output
-    )
+    output_dir = os.path.join(os.path.dirname(__file__), "..", "output", output)
     for seed_length in seed_lengths:
         seed_nodes = [node for node, _ in top_influencers[:seed_length]]
-    # Esecuzione dei modelli
+
         models = Models(graph)
         model_results = models.run_all(
             seed_nodes=seed_nodes,
@@ -94,19 +93,29 @@ def run_models_on_differnt_centralities(
     output : str, optional
         Sottocartella di output.
     """
-    centrality_metrics = ["Degree Centrality", "Closeness Centrality", "Betweenness Centrality",
-                          "PageRank", "Katz Centrality","Eigenvector Centrality","HITS Hub Scores","HITS Authority Scores"]
+    centrality_metrics = [
+        "Degree Centrality",
+        "Closeness Centrality",
+        "Betweenness Centrality",
+        "PageRank",
+        "Katz Centrality",
+        "Eigenvector Centrality",
+        "HITS Hub Scores",
+        "HITS Authority Scores",
+    ]
     graph = graph_builder.graph
     seed_nodes_by_centrality = {}
-    output_dir = os.path.join(
-        os.path.dirname(__file__), "..", "output", output
-    )
+    output_dir = os.path.join(os.path.dirname(__file__), "..", "output", output)
     for metric in centrality_metrics:
-        sorted_nodes = sorted(centralities[metric].items(), key=lambda x: x[1], reverse=True)
-        seed_nodes_by_centrality[metric] = [node for node, _ in sorted_nodes[:seed_length]]
+        sorted_nodes = sorted(
+            centralities[metric].items(), key=lambda x: x[1], reverse=True
+        )
+        seed_nodes_by_centrality[metric] = [
+            node for node, _ in sorted_nodes[:seed_length]
+        ]
         all_results_by_centrality = {}
         for metric, seed_nodes in seed_nodes_by_centrality.items():
-            # Esecuzione dei modelli
+
             models = Models(graph)
             model_results = models.run_all(
                 seed_nodes=seed_nodes,
@@ -124,7 +133,8 @@ def run_models_on_differnt_centralities(
 
         if save_to_file:
             save_results_to_file(
-                model_results, os.path.join(output_dir, "save", f"{metric}_steps_{seed_length}")
+                model_results,
+                os.path.join(output_dir, "save", f"{metric}_steps_{seed_length}"),
             )
 
     if save_fig:
@@ -135,6 +145,7 @@ def run_models_on_differnt_centralities(
             os.path.join(output_dir, "plot_centrality_comparison"),
             use_centrality_labels=True,
         )
+
 
 def run_models_on_differnt_optimizer(
     optimization_results,
@@ -155,11 +166,23 @@ def run_models_on_differnt_optimizer(
     steps : int
         Numero di passi di simulazione.
     """
-    optmizer_methods = ["Greedy", "CELF", "CELF++","Stop-And-Go", 
-                          "Static","SIMPATH","LDAG","IRIE",
-                          "PMC","TIM+","EaSyIM","Sketching","Singles"]
+    optmizer_methods = [
+        "Greedy",
+        "CELF",
+        "CELF++",
+        "Stop-And-Go",
+        "Static",
+        "SIMPATH",
+        "LDAG",
+        "IRIE",
+        "PMC",
+        "TIM+",
+        "EaSyIM",
+        "Sketching",
+        "Singles",
+    ]
     graph = graph_builder.graph
- 
+
     all_res = {}
     output_dir = os.path.join(
         os.path.dirname(__file__), "..", "output", "optimizer_output"
@@ -170,16 +193,16 @@ def run_models_on_differnt_optimizer(
         print(f"Running model for optimizer {method}")
         models = Models(graph)
         model_results = models.run_all(
-                seed_nodes=seed_nodes,
-                p=0.4,
-                beta=0.3,
-                gamma=0.03,
-                lambda_=0.1,
-                steps=steps,
-                prob=0.4,
-                initial_prob=0.1,
-                decay_factor=0.95,
-                trust_function=graph_builder.trust_function,
+            seed_nodes=seed_nodes,
+            p=0.4,
+            beta=0.3,
+            gamma=0.03,
+            lambda_=0.1,
+            steps=steps,
+            prob=0.4,
+            initial_prob=0.1,
+            decay_factor=0.95,
+            trust_function=graph_builder.trust_function,
         )
         all_res[method] = model_results
 

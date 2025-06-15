@@ -17,5 +17,5 @@ dtype_data = {
     "vader_compound": float,
     "vader_label": str,
     "transformer_label": str,
-    "transformer_score": float
+    "transformer_score": float,
 }

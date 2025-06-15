@@ -1,6 +1,7 @@
 import random
 import networkx as nx
 
+
 def ldag(graph, k, p=0.1, threshold=0.5):
     """Algoritmo LDAG: Local DAG-based propagation"""
 

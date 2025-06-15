@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 import json
 import networkx as nx
@@ -11,7 +12,6 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from Code.notebook.graph.utils import dtype_data
 
 
-# Funzioni helper per il calcolo delle centralità
 def degree_centrality(graph):
     """Wrapper di ``nx.degree_centrality``."""
 
@@ -87,17 +87,37 @@ class GraphConstructor:
             Percorso del file JSON per le centralità.
         """
 
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+        project_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../..")
+        )
         if followers_paths is None:
             followers_paths = [
-                os.path.join(project_root, "Code", "data_extraction", "data", "processed", "followers.csv")
+                os.path.join(
+                    project_root,
+                    "Code",
+                    "data_extraction",
+                    "data",
+                    "processed",
+                    "followers.csv",
+                )
             ]
         if post_data_dir is None:
-            post_data_dir = os.path.join(project_root, "Code", "data_extraction", "data", "processed", "post_data")
+            post_data_dir = os.path.join(
+                project_root,
+                "Code",
+                "data_extraction",
+                "data",
+                "processed",
+                "post_data",
+            )
         if info_filepath is None:
-            info_filepath = os.path.join(os.path.dirname(__file__), "info", "graph_info.json")
+            info_filepath = os.path.join(
+                os.path.dirname(__file__), "info", "graph_info.json"
+            )
         if centralities_filepath is None:
-            centralities_filepath = os.path.join(os.path.dirname(__file__), "info", "centralities_info.json")
+            centralities_filepath = os.path.join(
+                os.path.dirname(__file__), "info", "centralities_info.json"
+            )
 
         self.df = pd.concat(
             [
@@ -202,7 +222,7 @@ class GraphConstructor:
         for centrality_name, values in centralities.items():
             print(f"\n{centrality_name} (Top {top_k}):")
             print("-" * (len(centrality_name) + 10))
-            # Ordina i nodi per valore decrescente e seleziona i primi `top_k`
+
             sorted_values = sorted(values.items(), key=lambda x: x[1], reverse=True)[
                 :top_k
             ]
@@ -239,7 +259,7 @@ class GraphConstructor:
             Dati su componenti connesse e statistiche di cammino.
         """
         info = {}
-        # Componenti fortemente connesse (per grafi diretti)
+
         scc = list(nx.strongly_connected_components(self.graph))
         info["Numero di componenti fortemente connesse"] = len(scc)
         largest_scc = max(scc, key=len) if scc else set()
@@ -247,7 +267,6 @@ class GraphConstructor:
             largest_scc
         )
 
-        # Componenti debolmente connesse
         wcc = list(nx.weakly_connected_components(self.graph))
         info["Numero di componenti debolmente connesse"] = len(wcc)
         largest_wcc = max(wcc, key=len) if wcc else set()
@@ -255,7 +274,6 @@ class GraphConstructor:
             largest_wcc
         )
 
-        # Calcolo del diametro e della lunghezza media dei cammini sulla componente debolmente connessa più grande
         if largest_wcc:
             subgraph = self.graph.subgraph(largest_wcc).to_undirected()
             try:
@@ -347,7 +365,6 @@ class GraphConstructor:
         logging.info("Calculating degree distribution info")
         info["Distribuzione del grado"] = self.get_degree_distribution()
 
-        # Salva le informazioni su file in formato JSON
         try:
             with open(self.info_filepath, "w", encoding="utf-8") as f:
                 json.dump(info, f, indent=4)
@@ -385,7 +402,6 @@ class GraphConstructor:
 
         centralities = self.calculate_centralities()
 
-        # Salva le centralità su file in formato JSON
         try:
             with open(self.centralities_filepath, "w", encoding="utf-8") as f:
                 json.dump(centralities, f, indent=4)

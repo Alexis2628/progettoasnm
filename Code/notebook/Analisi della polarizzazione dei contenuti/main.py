@@ -4,7 +4,6 @@ import os
 import argparse
 from ast import literal_eval
 
-# Configurazione del path per importare i moduli
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 from Code.notebook.graph.GraphConstructor import GraphConstructor
@@ -24,17 +23,13 @@ def parse_args():
         description="Analisi della polarizzazione dei contenuti (configurabile via CLI)."
     )
 
-    # Output directory
     parser.add_argument(
         "--output-dir",
         type=str,
-        default=os.path.join(
-            os.path.dirname(__file__), "output"
-        ),
+        default=os.path.join(os.path.dirname(__file__), "output"),
         help="Cartella in cui salvare tutti i risultati.",
     )
 
-    # Scelta tra TF-IDF o Embeddings
     tfidf_group = parser.add_mutually_exclusive_group()
     tfidf_group.add_argument(
         "--use-tfidf",
@@ -50,7 +45,6 @@ def parse_args():
     )
     parser.set_defaults(use_tfidf=True)
 
-    # Parametri per ClusteringTFIDF
     parser.add_argument(
         "--max-features",
         type=int,
@@ -90,7 +84,6 @@ def parse_args():
         help="Se specificato, abilitare LSA nel pipeline TF-IDF.",
     )
 
-    # Parametri per ClusteringEmbeddings
     parser.add_argument(
         "--embedding-model",
         type=str,
@@ -109,7 +102,6 @@ def parse_args():
         help="Numero di componenti UMAP (solo per ClusteringEmbeddings).",
     )
 
-    # Parametri comuni di clustering
     parser.add_argument(
         "--method",
         type=str,
@@ -136,7 +128,6 @@ def parse_args():
         help="Random seed da passare ai metodi di clustering.",
     )
 
-    # Identificazione temi polarizzanti (solo TF-IDF)
     parser.add_argument(
         "--top-n",
         type=int,
@@ -175,7 +166,6 @@ def main():
     """Esegue l'analisi completa sui dati."""
     args = parse_args()
 
-    # Configurazione del logging
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -184,29 +174,23 @@ def main():
 
     logging.info("Inizio del processo principale.")
 
-    # Preparo la cartella di output
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
     logging.info(f"Output directory: {output_dir}")
 
-    # Costruzione del grafo
     graph_builder = GraphConstructor()
     graph_builder.build_graph()
 
-    # Preprocessing e estrazione delle opinioni
     preprocessor = TextPreprocessor()
     user_opinions = preprocessor.extract_user_opinions(graph_builder)
 
-    # Estrazione dei sentiment
     sentiment_scores = SentimentAnalyzer().extract_sentiments_from_graph(graph_builder)
 
-    # Parametri combinati da argparse
     ngram_range = literal_eval(args.ngram_range)
     polar_unigram_range = literal_eval(args.polar_ngram_range_unigrams)
     polar_bigram_range = literal_eval(args.polar_ngram_range_bigrams)
     stop_words = args.stop_words if args.stop_words.lower() != "none" else None
 
-    # Clustering
     if args.use_tfidf:
         logging.info("Utilizzo ClusteringTFIDF (TF-IDF + LSA + HDBSCAN).")
 
@@ -253,11 +237,9 @@ def main():
         f"Cluster ottenuti: {num_cluster_detected} distinti (incluso -1 per rumore, se presente)."
     )
 
-    # Visualizzazione dei cluster
     cluster_visualizer = ClusterVisualizer(output_dir=output_dir)
     cluster_visualizer.visualize(user_opinions, cluster_labels)
 
-    # Visualizzazione dei sentiment per cluster
     sentiment_visualizer = SentimentVisualizer(output_dir=output_dir)
     sentiment_visualizer.visualize_sentiment_distribution(
         sentiment_scores, cluster_labels
@@ -266,7 +248,6 @@ def main():
         sentiment_scores, user_opinions, cluster_labels
     )
 
-    # Identificazione dei temi polarizzanti (solo per TF-IDF)
     if args.use_tfidf:
         logging.info("Identificazione dei temi polarizzanti (unigrams).")
         polarizing_dict = clustering.identify_polarizing_themes(
@@ -292,9 +273,9 @@ def main():
             user_opinions,
             cluster_labels,
             top_n=args.top_n,
-            ngram_range=(1,1),
+            ngram_range=(1, 1),
             min_df=args.polar_min_df,
-            max_df=args.polar_max_df
+            max_df=args.polar_max_df,
         )
 
         logging.info("Identificazione dei temi polarizzanti (Embeddings bigrams).")
@@ -302,12 +283,11 @@ def main():
             user_opinions,
             cluster_labels,
             top_n=args.top_n,
-            ngram_range=(2,2),
+            ngram_range=(2, 2),
             min_df=args.polar_min_df,
-            max_df=args.polar_max_df
+            max_df=args.polar_max_df,
         )
 
-    # Funzione di utilità per appiattire le liste di keyword
     def _flatten_keywords(polar_dict):
         """Restituisce una lista unica di keyword."""
         all_kw = set()
@@ -318,7 +298,6 @@ def main():
     flat_unigrams = _flatten_keywords(polarizing_dict)
     flat_bigrams = _flatten_keywords(polarizing_bigrams_dict)
 
-    # WordCloud dei temi polarizzanti
     wordcloud_visualizer = WordCloudVisualizer()
     prefix = "TFIDF" if args.use_tfidf else "EMB"
     wordcloud_visualizer.visualize(
@@ -328,7 +307,6 @@ def main():
         flat_bigrams, output_dir=output_dir, prefix=f"{prefix}_Bi"
     )
 
-    # Topic modeling con LDA: uso il numero di cluster (escludendo -1 per rumore)
     num_clusters_effective = len(
         {label for label in cluster_labels.values() if label != -1}
     )
@@ -337,7 +315,6 @@ def main():
         user_opinions, n_topics=num_clusters_effective
     )
 
-    # Visualizzazione LDA
     lda_visualizer = LDAViz()
     lda_visualizer.visualize(lda_model, corpus, dictionary, output_dir=output_dir)
 

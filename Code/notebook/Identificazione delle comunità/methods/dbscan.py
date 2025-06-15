@@ -17,7 +17,7 @@ def dbscan_clustering(graph: nx.Graph, eps: float = 0.5, min_samples: int = 5) -
     labels : dict
         Mappa nodo->cluster (int, con -1 per rumore).
     """
-    # matrice di adiacenza come feature
+
     X = nx.to_numpy_array(graph)
     db = DBSCAN(eps=eps, min_samples=min_samples)
     y = db.fit_predict(X)

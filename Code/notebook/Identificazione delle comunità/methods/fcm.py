@@ -28,7 +28,7 @@ def fcm_clustering(
     labels : dict
         Mappa nodo->cluster (int).
     """
-    X = nx.to_numpy_array(graph).T  # shape (features, samples)
+    X = nx.to_numpy_array(graph).T
     cntr, u, _, _, _, _, _ = fuzz.cluster.cmeans(X, c, m, error=error, maxiter=maxiter)
     labels = np.argmax(u, axis=0)
     nodes = list(graph.nodes())

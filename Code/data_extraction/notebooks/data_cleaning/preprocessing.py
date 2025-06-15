@@ -3,6 +3,7 @@ import logging
 import sys
 from pathlib import Path
 import os
+
 sys.path.insert(0, os.path.abspath("../../../"))
 import pandas as pd
 from deep_translator import GoogleTranslator
@@ -35,9 +36,7 @@ def translate_text(text: str, target_lang: str = "en") -> str:
         return text
 
 
-def process_single_file(
-    in_path: Path, out_path: Path, target_lang: str = "en"
-) -> None:
+def process_single_file(in_path: Path, out_path: Path, target_lang: str = "en") -> None:
     """
     Esegue la pulizia e traduzione di un singolo file CSV.
     - Controlla l'esistenza del file
@@ -88,31 +87,47 @@ def process_single_file(
         if "post_pk" in df.columns:
             df["post_pk"] = df["post_pk"].astype(str)
         if "like_count" in df.columns:
-            df["like_count"] = pd.to_numeric(df["like_count"], errors="coerce", downcast="integer")
+            df["like_count"] = pd.to_numeric(
+                df["like_count"], errors="coerce", downcast="integer"
+            )
         if "quote_count" in df.columns:
-            df["quote_count"] = pd.to_numeric(df["quote_count"], errors="coerce", downcast="integer")
+            df["quote_count"] = pd.to_numeric(
+                df["quote_count"], errors="coerce", downcast="integer"
+            )
         if "repost_count" in df.columns:
-            df["repost_count"] = pd.to_numeric(df["repost_count"], errors="coerce", downcast="integer")
+            df["repost_count"] = pd.to_numeric(
+                df["repost_count"], errors="coerce", downcast="integer"
+            )
         if "reshare_count" in df.columns:
-            df["reshare_count"] = pd.to_numeric(df["reshare_count"], errors="coerce", downcast="integer")
+            df["reshare_count"] = pd.to_numeric(
+                df["reshare_count"], errors="coerce", downcast="integer"
+            )
         if "taken_at" in df.columns:
             df["taken_at"] = pd.to_datetime(df["taken_at"], errors="coerce")
         if "username" in df.columns:
             df["username"] = df["username"].astype(str)
         if "user_pk" in df.columns:
-            df["user_pk"] = pd.to_numeric(df["user_pk"], errors="coerce", downcast="integer")
+            df["user_pk"] = pd.to_numeric(
+                df["user_pk"], errors="coerce", downcast="integer"
+            )
         if "caption_text" in df.columns:
             df["caption_text"] = df["caption_text"].astype(str)
         if "caption_text_translated" in df.columns:
             df["caption_text_translated"] = df["caption_text_translated"].astype(str)
         if "sentiment_score" in df.columns:
-            df["sentiment_score"] = pd.to_numeric(df["sentiment_score"], errors="coerce")
+            df["sentiment_score"] = pd.to_numeric(
+                df["sentiment_score"], errors="coerce"
+            )
         if "sentiment_label" in df.columns:
             df["sentiment_label"] = df["sentiment_label"].astype("category")
         if "thread_user_pk" in df.columns:
-            df["thread_user_pk"] = pd.to_numeric(df["thread_user_pk"], errors="coerce", downcast="integer")
+            df["thread_user_pk"] = pd.to_numeric(
+                df["thread_user_pk"], errors="coerce", downcast="integer"
+            )
     except Exception as e:
-        logging.error(f"Errore nella conversione dei tipi nel file '{in_path.name}': {e}")
+        logging.error(
+            f"Errore nella conversione dei tipi nel file '{in_path.name}': {e}"
+        )
 
     # 2. Sostituzione delle date default "1970-01-01" con NaT (se c'è 'taken_at')
     if "taken_at" in df.columns:
@@ -123,7 +138,9 @@ def process_single_file(
     before = df.shape[0]
     df = df.drop_duplicates(subset=["id", "post_pk", "username", "thread_user_pk"])
     after = df.shape[0]
-    logging.info(f"Droppati {before - after} duplicati (colonne 'id,post_pk,username,thread_user_pk'). Dimensione attuale: {df.shape}")
+    logging.info(
+        f"Droppati {before - after} duplicati (colonne 'id,post_pk,username,thread_user_pk'). Dimensione attuale: {df.shape}"
+    )
 
     # 4. Traduzione: solo se 'caption_text_translated' è vuoto o uguale all'originale
     if "caption_text" in df.columns and "caption_text_translated" in df.columns:
@@ -215,7 +232,10 @@ def main():
         try:
             process_single_file(in_path, out_path, target_lang=args.lang)
         except Exception as e:
-            logging.error(f"Errore inatteso durante l'elaborazione di '{filename}': {e}", exc_info=True)
+            logging.error(
+                f"Errore inatteso durante l'elaborazione di '{filename}': {e}",
+                exc_info=True,
+            )
 
     logging.info("Elaborazione terminata per tutti i file.")
 

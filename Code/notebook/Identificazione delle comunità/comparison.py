@@ -45,14 +45,13 @@ class Comparator:
             "performance": [],
         }
         for name, part in self.partitions.items():
-            # costruisci lista di comunità
+
             comms = [
                 [n for n, lbl in part.items() if lbl == c] for c in set(part.values())
             ]
 
-            # modularity
             m = modularity(self.graph, comms)
-            # partition_quality restituisce (coverage, performance)
+
             cov, perf = partition_quality(self.graph, comms)
 
             data["method"].append(name)

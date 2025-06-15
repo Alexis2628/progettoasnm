@@ -17,6 +17,6 @@ def louvain_clustering(graph: nx.Graph) -> dict:
         Mappa nodo->cluster (int).
     """
     graph_undir = graph.to_undirected()
-    # best_partition restituisce un dict {nodo: comunità}
+
     partition = community_louvain.best_partition(graph_undir)
     return partition

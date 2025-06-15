@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import os
 import logging
 
+
 class Plotter:
 
     def plot_model_results(self, model_results, output_dir, save=True):
@@ -28,7 +29,7 @@ class Plotter:
                     active_counts.append(len(I))
                 else:
                     active_counts.append(len(result[step]))
-            # active_counts = [len(result[step]) for step in steps]
+
             plt.figure()
             plt.plot(steps, active_counts, marker="o", label=model_name)
             plt.title(f"{model_name} - Nodi attivi per step")
@@ -82,8 +83,11 @@ class Plotter:
                         else:
                             active_counts.append(len(result[step]))
 
-                    # Cambia l'etichetta in base al flag
-                    label = f"Centrality: {seed_length}" if use_centrality_labels else f"Seed Length: {seed_length}"
+                    label = (
+                        f"Centrality: {seed_length}"
+                        if use_centrality_labels
+                        else f"Seed Length: {seed_length}"
+                    )
                     plt.plot(steps, active_counts, marker="o", label=label)
 
                 plt.title(f"{model_name} - Nodi attivi per step")
@@ -92,7 +96,11 @@ class Plotter:
                 plt.grid(True)
                 plt.legend()
                 if save:
-                    plt.savefig(os.path.join(output_dir, f"{str.strip(model_name)}_comparative_plot.png"))
+                    plt.savefig(
+                        os.path.join(
+                            output_dir, f"{str.strip(model_name)}_comparative_plot.png"
+                        )
+                    )
                     plt.close()
                 else:
                     plt.show()
@@ -109,7 +117,7 @@ class Plotter:
         save : bool, optional
             Se ``True`` salva le figure invece di mostrarle.
         """
-        # Risultato finale
+
         output_dir = os.path.join(output_dir, "figure")
         os.makedirs(output_dir, exist_ok=True)
         for modello, metodi in all_results.items():
