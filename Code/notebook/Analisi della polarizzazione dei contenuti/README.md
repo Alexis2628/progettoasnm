@@ -14,3 +14,20 @@ python main.py
 ```
 
 Tutti i parametri sono configurabili da riga di comando; è possibile ottenere la lista completa tramite `--help`. I risultati e i grafici generati verranno salvati nella cartella `output/`.
+
+### Run Effettuate
+```bash
+python.exe main.py --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/1"
+```
+```bash
+python.exe main.py --use-tfidf --use-lsa --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/2"
+```
+```bash
+python.exe main.py --use-tfidf --method kmeans --n-clusters 15 --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/3"
+```
+```bash
+python.exe main.py --no-tfidf --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/4"
+```
+```bash
+python.exe main.py --no-tfidf --use-umap --embedding-model all-mpnet-base-v2 --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/5"
+```
