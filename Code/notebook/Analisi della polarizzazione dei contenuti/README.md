@@ -31,3 +31,13 @@ python.exe main.py --no-tfidf --output-dir "Code/notebook/Analisi della polarizz
 ```bash
 python.exe main.py --no-tfidf --use-umap --embedding-model all-mpnet-base-v2 --output-dir "Code/notebook/Analisi della polarizzazione dei contenuti/output/5"
 ```
+
+### Confronto delle run
+
+Per valutare le differenti configurazioni è presente lo script `comparison.py` che calcola
+metriche di coesione, separazione e polarizzazione emotiva. Lanciandolo verrà creato il
+file `comparison_metrics.csv` nella directory `output/`.
+
+```bash
+python comparison.py
+```
