@@ -5,3 +5,5 @@ env
 prog
 __pycache__
 .python-version
+.ipynb_checkpoints
+ProgettoASNMThreads.zip
