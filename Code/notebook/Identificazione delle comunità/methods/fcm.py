@@ -5,7 +5,7 @@ import skfuzzy as fuzz
 
 def fcm_clustering(
     graph: nx.Graph,
-    c: int = 3,
+    c: int = 15,
     m: float = 2.0,
     error: float = 0.005,
     maxiter: int = 1000,

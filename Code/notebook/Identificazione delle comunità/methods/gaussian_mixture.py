@@ -5,7 +5,7 @@ from sklearn.mixture import GaussianMixture
 
 
 def gaussian_mixture_clustering(
-    graph: nx.Graph, n_components: int = 3, embedding_dim: int = 100
+    graph: nx.Graph, n_components: int = 15, embedding_dim: int = 100
 ) -> dict:
     """
     Cluster a (large) graph by:

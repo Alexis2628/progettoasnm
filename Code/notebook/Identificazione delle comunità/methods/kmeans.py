@@ -2,7 +2,7 @@ import networkx as nx
 from sklearn.cluster import KMeans
 
 
-def kmeans_clustering(graph: nx.Graph, n_clusters: int = 3) -> dict:
+def kmeans_clustering(graph: nx.Graph, n_clusters: int = 15) -> dict:
     """
     Cluster a grafo usando K-Means su vettori di adiacenza.
 

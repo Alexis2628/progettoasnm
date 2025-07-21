@@ -69,7 +69,7 @@ def process_single_file(in_path: Path, out_path: Path, target_lang: str = "en") 
         "user_pk",
         "caption_text",
         "caption_text_translated",
-        "sentiment_score",
+        "sentiment_score",  # model="distilbert-base-uncased-finetuned-sst-2-english"
         "sentiment_label",
         "thread_user_pk",
     }
